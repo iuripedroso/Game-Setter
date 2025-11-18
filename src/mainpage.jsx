@@ -1,0 +1,169 @@
+import { useEffect } from "react";
+import "./style.css";
+import VideoFile from "./assets/video.mp4";
+import reviewsData from "./data/userReviews.json"; // <-- importa o JSON
+
+function MainPage() {
+
+    useEffect(() => {
+        function shuffleStep(word) {
+            let arr = word.split('');
+            if (arr.length > 3) {
+                let temp = arr[1];
+                arr[1] = arr[arr.length - 2];
+                arr[arr.length - 2] = temp;
+            } else {
+                arr = arr.reverse();
+            }
+            return arr;
+        }
+
+        const stepDuration = 100;
+
+        document.querySelectorAll('.c-header-menu').forEach(link => {
+            const spans = link.querySelectorAll('span');
+            const originalText = Array.from(spans).map(s => s.textContent).join('');
+            const reversedText = originalText.split('').reverse().join('');
+            const shuffledText = shuffleStep(originalText).join('');
+
+            const texts = [
+                originalText.split(''),
+                reversedText.split(''),
+                shuffledText.split(''),
+                originalText.split('')
+            ];
+
+            link.addEventListener('mouseenter', () => {
+                let step = 0;
+
+                function nextStep() {
+                    texts[step].forEach((char, i) => {
+                        if (spans[i]) spans[i].textContent = char;
+                    });
+                    step++;
+                    if (step < texts.length) {
+                        setTimeout(nextStep, stepDuration);
+                    }
+                }
+
+                nextStep();
+            });
+        });
+    }, []);
+
+    const StarRating = ({ rating }) => {
+        const totalStars = 5;
+        const fullStars = Math.floor(rating);
+        const isHalf = rating % 1 !== 0;
+
+        let stars = '★'.repeat(fullStars);
+        if (isHalf) stars += '½';
+        stars += '☆'.repeat(totalStars - Math.ceil(rating));
+
+        return <span className="rating-stars">{stars}</span>;
+    };
+
+    return (
+        <main className="main-container">
+            <div className="video-area">
+                <video className="background-video" src={VideoFile} autoPlay loop muted />
+
+                <header className="overlay-header">
+                    <h1>GameSetter</h1>
+
+                    <nav className="itens">
+                        <a href="#" className="c-header-menu">
+                            <span>I</span><span>n</span><span>í</span><span>c</span><span>i</span><span>o</span>
+                        </a>
+                        <a href="#" className="c-header-menu">
+                            <span>J</span><span>o</span><span>g</span><span>o</span><span>s</span>
+                        </a>
+                        <a href="#" className="c-header-menu">
+                            <span>S</span><span>o</span><span>b</span><span>r</span><span>e</span>
+                        </a>
+                    </nav>
+                </header>
+
+                <div className="content">
+                    <p>chaos has never looked this beautiful</p>
+                    <h1>new: grand theft auto VI</h1>
+                </div>
+
+                <div className="content-trailer">
+                    <div class="content-trailer">
+                        <div class="trailer-container">
+                            <iframe
+                                src="https://www.youtube.com/embed/QdBZY2fkU-0"
+                                title="GTA VI Trailer"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="popularh2">
+                <h2>popular releases</h2>
+            </div>
+            <div className="popular">
+                <div className="popular01"></div>
+                <div className="popular02"></div>
+                <div className="popular03"></div>
+                <div className="popular04"></div>
+                <div className="popular05"></div>
+            </div>
+
+            {/* <div className="below-video">
+                <h1>ㅤ</h1>
+                <h1>ㅤ</h1>
+                <h1>ㅤ</h1>
+                <h1>ㅤ</h1>
+            </div> */}
+
+            <div className="reviews-section">
+                <div className="reviews-header">
+                    <h2>Popular Reviews With Friends</h2>
+                    <a href="#">MORE</a>
+                </div>
+
+                <div className="reviews-grid">
+                    {reviewsData.map((review) => (
+                        <div key={review.id} className={`review-card ${review.compact ? 'compact-review' : ''}`}>
+                            <div className="review-header-game">
+                                <img
+                                    src={review.gamePoster}
+                                    alt={review.gameTitle}
+                                    className="game-poster"
+                                    onError={(e) => (e.target.src = "https://placehold.co/50x75")}
+                                />
+                                <div className="review-info">
+                                    <div className="rating-user">
+                                        <img
+                                            src={review.userAvatar}
+                                            alt={review.username}
+                                            className="user-avatar"
+                                            onError={(e) => (e.target.src = "https://placehold.co/25x25")}
+                                        />
+                                        <span className="user-info">{review.username}</span>
+                                        <StarRating rating={review.rating} />
+                                    </div>
+                                    <h3>{review.gameTitle}</h3>
+                                    <p>{review.gameYear}</p>
+                                </div>
+                            </div>
+                            <div className="review-text">{review.reviewText}</div>
+                            <div className="review-actions">
+                                <a href="#">❤️ Like review</a>
+                                <span>{review.likes} likes</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </main>
+    );
+}
+
+export default MainPage;

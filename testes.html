@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .fundo {
+            position: relative;
+            width: 400px;
+            height: 250px;
+            border: 2px solid #fff;
+            overflow: hidden;
+            /* corta o blur nas bordas */
+            background-color: #000;
+        }
+
+        /* imagem de fundo borrada */
+        .fundo::before {
+           
+            position: absolute;
+            inset: 0;
+            background: url("https://www.metacritic.com/a/img/catalog/provider/6/3/6-1-9662-13.jpg") center/cover no-repeat;
+            filter: blur(6px) brightness(0.7);
+            z-index: 0;
+        }
+
+        /* textura repetida por cima (sem blur) */
+        .fundo::after {
+            position: absolute;
+             width: 90%;
+  aspect-ratio: 16 / 9; 
+            inset: 0;
+
+            background: url("https://www.metacritic.com/a/img/catalog/provider/6/3/6-1-9662-13.jpg") repeat;
+            opacity: 0.8;
+       
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="fundo"></div>
+
+</body>
+
+</html>

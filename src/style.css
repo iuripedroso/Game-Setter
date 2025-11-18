@@ -1,0 +1,402 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body,
+html {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    background-color: rgb(255, 255, 255);
+}
+
+.main-container {
+    width: 100vw;
+    overflow-x: hidden;
+}
+
+.video-area {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+
+
+    padding: 0px 30px;
+    overflow: hidden;
+}
+
+.video-area::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* box-shadow: inset 0 0 300px 150px rgba(0, 0, 0, 0.2);  */
+    pointer-events: none;
+    z-index: 1;
+}
+
+.background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: black;
+    /* preenche bordas pretas */
+    z-index: 0;
+}
+
+
+.overlay-header {
+    position: relative;
+
+    top: 0;
+    width: 100%;
+    padding: 20px 40px 20px 27px;
+    color: white;
+    display: flex;
+    z-index: 2;
+
+    /* border: solid 2px white; */
+}
+
+.overlay-header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    /* border: solid 2px white; */
+}
+
+.itens {
+    margin-left: auto;
+    /* border: solid 2px white; */
+    padding-top: 5px;
+}
+
+.c-header-menu {
+    color: white;
+    text-decoration: none;
+    font-size: 22px;
+    font-weight: 500;
+    margin-right: 15px;
+    /* border: solid 2px white;   */
+}
+
+.c-header-menu:hover {
+    text-decoration: underline;
+    pointer-events: visible;
+}
+
+/* .below-video {
+     
+    background-color: rgb(255, 255, 255);
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+} */
+
+.content {
+    z-index: 2;
+    position: relative;
+    width: 60%;
+    height: auto;
+    color: aliceblue;
+    /* border: solid 2px white; */
+    display: flex;
+    flex-direction: column;
+
+    text-transform: capitalize;
+    padding-left: 30px;
+    margin-top: 25vh;
+}
+
+.content p {
+    font-size: 20px;
+    flex-grow: 1;
+    font-weight: 500;
+    margin-right: 15px;
+    /* border: solid 2px white;   */
+    margin-left: 2px;
+
+    text-transform: capitalize;
+
+}
+
+.content h1 {
+    font-size: 60px;
+    font-weight: 700;
+    height: auto;
+    margin-top: -3px;
+    /* border: solid 2px white;   */
+}
+
+.content-trailer {
+    z-index: 2;
+    position: relative;
+    width: 60%;
+    height: 30%;
+    color: aliceblue;
+    /* border: solid 2px white; */
+    display: flex;
+    align-items: center;
+
+    margin-top: 20px;
+    text-transform: capitalize;
+    /* padding-left: 30px; */
+    /* margin-top: 30vh; */
+}
+
+.trailer-container {
+    position: relative;
+    width: 80%;
+    aspect-ratio: 16 / 9;
+    /* mantém o formato do vídeo */
+    margin-left: 27px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.7);
+    transition: transform 0.3s ease, box-shadow 2s ease;
+    /* animações mais lentas */
+
+    /* border: solid 2px white; */
+}
+
+.trailer-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.trailer-container:hover {
+    transform: scale(1.03);
+    /* box-shadow: 0 0 90px rgba(255, 0, 80, 0.6); brilho ao passar o mouse */
+}
+
+.popular {
+    /* border: solid 2px rgb(0, 0, 0); */
+    margin: auto;
+
+    height: 300px;
+    width: 80%;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+
+
+    margin-bottom: 25px;
+    padding: 20px;
+}
+
+/* quem for fazer o back, colocar pelo banco */
+.popular01,
+.popular02,
+.popular03,
+.popular04,
+.popular05 {
+    width: 166px;
+    aspect-ratio: 16 / 9;
+    margin: 12px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #ffffffb6;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+
+
+    border: transparent 2px solid;
+
+}
+
+.popular01:hover,
+.popular02:hover,
+.popular03:hover,
+.popular04:hover,
+.popular05:hover {
+    cursor: pointer;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.popular01 {
+    background-image: url(https://www.metacritic.com/a/img/catalog/provider/6/3/6-1-9662-13.jpg);
+
+}
+
+
+.popular02 {
+    background-image: url(https://www.metacritic.com/a/img/resize/dd8bc8263cb4b0dc1ec76d107cf6ca5d1cd5dae8/catalog/provider/6/3/6-1-1724-13.jpg?auto=webp&fit=cover&height=300&width=200);
+}
+
+.popular03 {
+    background-image: url(https://www.metacritic.com/a/img/resize/ff49ce46fd98c3e4bbbe0345f584c937d94e7411/catalog/provider/6/3/6-1-52990-13.jpg?auto=webp&fit=cover&height=300&width=200);
+}
+
+.popular04 {
+    background-image: url(https://www.metacritic.com/a/img/resize/91b0194cfb43565bc09b3512f46fde2db9b2bd02/catalog/provider/7/2/7-1757393088.jpg?auto=webp&fit=cover&height=300&width=200);
+}
+
+.popular05 {
+    background-image: url(https://www.metacritic.com/a/img/resize/6ea15a68fed2f04d68e7056a49eaf56972db34d9/catalog/provider/7/2/7-1758081818.jpg?auto=webp&fit=cover&height=300&width=200);
+}
+
+.popularh2 {
+    height: auto;
+    width: 80%;
+
+    margin: auto;
+    margin-top: 100px;
+
+    border-bottom: solid 2px rgb(0, 0, 0);
+    z-index: 2;
+}
+
+.popularh2 h2 {
+    font-size: 25px;
+    font-weight: 500;
+    color: rgb(0, 0, 0);
+    text-transform: capitalize;
+}
+
+
+/* 55555555555555555555555555555555555555555555 */
+
+
+.reviews-section {
+    width: 80%;
+    margin: 80px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    color: #111;
+}
+
+.reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 8px;
+}
+
+.reviews-header h2 {
+    font-size: 25px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.reviews-header a {
+    color: #000;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.reviews-header a:hover {
+    text-decoration: underline;
+    opacity: 0.7;
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 25px;
+}
+
+.review-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    padding: 18px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.review-header-game {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.game-poster {
+    width: 60px;
+    height: 90px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.review-info h3 {
+    font-size: 18px;
+    margin: 3px 0 2px;
+    font-weight: 600;
+}
+
+.review-info p {
+    font-size: 14px;
+    color: #666;
+}
+
+.rating-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-avatar {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-info {
+    font-weight: 600;
+    color: #111;
+}
+
+.rating-stars {
+    font-size: 14px;
+    color: #f5b301;
+}
+
+.review-text {
+    font-size: 14px;
+    color: #333;
+    margin: 8px 0 12px;
+    line-height: 1.4;
+}
+
+.review-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.review-actions a {
+    color: #e63946;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.review-actions a:hover {
+    text-decoration: underline;
+}
+
+.compact-review {
+    background-color: #f9f9f9;
+    border-color: #ccc;
+    opacity: 0.95;
+}

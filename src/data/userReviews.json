@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "username": "jumenta",
+    "userAvatar": "https://i.pravatar.cc/30?img=1",
+    "gameTitle": "The Legend of Zelda: Tears of the Kingdom",
+    "gameYear": 2023,
+    "gamePoster": "https://www.metacritic.com/a/img/resize/91b0194cfb4b0dc1ec76d107cf6ca5d1cd5dae8/catalog/provider/7/2/7-1757393088.jpg?auto=webp&fit=cover&height=300&width=200",
+    "rating": 4.5,
+    "reviewText": "Eu interpreto as novas mecânicas como 'liberdade total'...",
+    "likes": 23,
+    "compact": false
+  },
+  {
+    "id": 2,
+    "username": "isocah",
+    "userAvatar": "https://i.pravatar.cc/30?img=5",
+    "gameTitle": "Elden Ring",
+    "gameYear": 2022,
+    "gamePoster": "https://www.metacritic.com/a/img/resize/91b0194cfb4b0dc1ec76d107cf6ca5d1cd5dae8/catalog/provider/7/2/7-1757393088.jpg?auto=webp&fit=cover&height=300&width=200",
+    "rating": 3.5,
+    "reviewText": "⚔️ O jogo abandona o 'casamento' da linearidade dos Souls antigos.",
+    "likes": 85,
+    "compact": true
+  }
+]
