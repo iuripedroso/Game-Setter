@@ -162,8 +162,57 @@ function MainPage() {
                     ))}
                 </div>
             </div>
+
+            <footer className="footer">
+                <div className="footer-container">
+
+                    <div className="footer-about">
+                        <h2>GameSetter</h2>
+                        <p>
+                            A place for gamers, reviews, trailers and chaos.
+                            Discover your next favorite game.
+                        </p>
+                    </div>
+
+                    <div className="footer-links">
+                        <h2>Explore</h2>
+                        <ul>
+                            <li><a href="#">Início</a></li>
+                            <li><a href="#">Jogos</a></li>
+                            <li><a href="#">Sobre</a></li>
+                        </ul>
+                    </div>
+
+                    <div className="footer-social">
+                        <h2>Social</h2>
+                        <ul>
+                            <li><a href="#">Instagram</a></li>
+                            <li><a href="#">GitHub</a></li>
+                            <li><a href="#">YouTube</a></li>
+                        </ul>
+                    </div>
+
+                    <div className="footer-newsletter">
+                        <h2>Newsletter</h2>
+                        <p>Get updates on new releases and reviews</p>
+                        <form>
+                            <input type="email" placeholder="Seu email" />
+                            <button type="submit">Enviar</button>
+                        </form>
+                    </div>
+
+                </div>
+
+                <div className="footer-bottom">
+                    <p>© 2025 GameSetter — All rights reserved.</p>
+                </div>
+            </footer>
+
         </main>
+
     );
+
+
 }
 
 export default MainPage;

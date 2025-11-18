@@ -21,8 +21,14 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
-*.mp4
+
+
+
+
+
+
+
+
 *.mov
 *.zip
 *.exe
