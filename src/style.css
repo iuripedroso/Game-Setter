@@ -470,6 +470,7 @@ html {
 }
 
 .footer-newsletter input {
+    margin-top: 21px;
     padding: 10px;
     border: none;
     background: #222;
