@@ -279,6 +279,9 @@ html {
 .reviews-header {
     display: flex;
     justify-content: space-between;
+
+    width: 80%;
+
     align-items: center;
     border-bottom: 2px solid #000;
     padding-bottom: 8px;
@@ -392,8 +395,8 @@ html {
     font-weight: 500;
 }
 
-.review-actions a:hover {
-    text-decoration: underline;
+.review-actions a:hover{
+     text-decoration: none; 
 }
 
 .compact-review {
@@ -467,6 +470,7 @@ html {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-top: 18px;
 }
 
 .footer-newsletter input {
