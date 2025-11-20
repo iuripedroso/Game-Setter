@@ -279,6 +279,9 @@ html {
 .reviews-header {
     display: flex;
     justify-content: space-between;
+
+    width: 80%;
+
     align-items: center;
     border-bottom: 2px solid #000;
     padding-bottom: 8px;
