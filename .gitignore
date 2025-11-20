@@ -1,37 +1,24 @@
-# Logs
+# Logs e Dependências
 logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 
-
-
-
-
-
-
-
-*.mov
+# Arquivos pesados / Binários
 *.zip
 *.exe
 
-src/assets/video.mp4
-src/assets/videoKart.mp4
+# Mídia pesada (Onde moram os vídeos)
+*.mp4
+*.mov
+
+# Se houver algum vídeo específico que não tenha extensão mp4/mov mas seja pesado:
+# src/assets/nome-do-arquivo-especifico
