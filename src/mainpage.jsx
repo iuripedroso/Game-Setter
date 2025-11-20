@@ -155,7 +155,7 @@ function MainPage() {
                             </div>
                             <div className="review-text">{review.reviewText}</div>
                             <div className="review-actions">
-                                <a href="#">❤️ Like review</a>
+                                <a href="#">❤️</a>
                                 <span>{review.likes} likes</span>
                             </div>
                         </div>
