@@ -1,10 +1,19 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
+import React, { useState } from "react";
 import MainPage from "./mainpage";
- 
+import LoginPage from "./loginPage";
+
 function App() {
-  return <MainPage/>;
+    const [logado, setLogado] = useState(false);
+
+    return (
+        <>
+            {!logado ? (
+                <LoginPage onLogin={() => setLogado(true)} />
+            ) : (
+                <MainPage />
+            )}
+        </>
+    );
 }
 
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+export default App;
