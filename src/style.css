@@ -395,8 +395,8 @@ html {
     font-weight: 500;
 }
 
-.review-actions a:hover{
-     text-decoration: none; 
+.review-actions a:hover {
+    text-decoration: none;
 }
 
 .compact-review {
@@ -474,6 +474,7 @@ html {
 }
 
 .footer-newsletter input {
+    margin-top: 21px;
     padding: 10px;
     border: none;
     background: #222;
