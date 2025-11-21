@@ -1,76 +1,369 @@
-/* Tela inteira escura */
+/* Reset e base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Container principal com imagem de fundo */
 .login-container {
-    height: 100vh;
+    min-height: 100vh;
     width: 100%;
-    background: url("https://images.hdqwalls.com/wallpapers/gta-6-4k-2025-1d.jpg");
-    background-size: cover;
-    background-position: center;
+    background: #14181c;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    font-family: 'Graphik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header estilo Letterboxd */
+.login-header {
+    width: 100%;
+    padding: 15px 40px;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    background: #14181c;
+    border-bottom: 1px solid #2c3440;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.logo-dots {
+    display: flex;
+    gap: 3px;
+}
+
+.logo-dots span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.logo-dots span:nth-child(1) { background: #ff8000; }
+.logo-dots span:nth-child(2) { background: #00e054; }
+.logo-dots span:nth-child(3) { background: #40bcf4; }
+
+.logo-text {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.header-nav {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.header-nav a {
+    color: #9ab;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.2s ease;
+}
+
+.header-nav a:hover {
+    color: #fff;
+}
+
+/* Área do banner/hero */
+.login-hero {
+    width: 100%;
+    height: 55vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6);
+}
+
+.hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70%;
+    background: linear-gradient(to top, #14181c 0%, transparent 100%);
+}
+
+/* Conteúdo central */
+.login-content {
+    width: 100%;
+    max-width: 950px;
+    margin: -120px auto 0;
+    padding: 0 20px 60px;
+    position: relative;
+    z-index: 10;
+    text-align: center;
+}
+
+.tagline {
+    color: #fff;
+    margin-bottom: 35px;
+}
+
+.tagline h2 {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
 }
 
 /* Caixa de login */
 .login-box {
-    background: rgba(0, 0, 0, 0.75);
-    padding: 40px;
-    width: 350px;
-    border-radius: 20px;
-    text-align: center;
-    color: white;
-    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    background: #2c3440;
+    border-radius: 8px;
+    padding: 35px 40px;
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: left;
 }
 
-.login-box h1 {
-    font-size: 32px;
-    margin-bottom: 10px;
-}
-
-.subtitle {
-    font-size: 15px;
-    opacity: 0.8;
+.login-box h3 {
+    color: #9ab;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
     margin-bottom: 25px;
+    text-align: center;
 }
 
-form input {
+/* Formulário */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-group label {
+    color: #9ab;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.input-group input {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 10px;
+    padding: 12px 14px;
+    border-radius: 4px;
     border: none;
     outline: none;
-    background: #222;
-    color: white;
+    background: #14181c;
+    color: #fff;
+    font-size: 15px;
+    transition: all 0.2s ease;
 }
 
-form input::placeholder {
-    color: #bbb;
+.input-group input::placeholder {
+    color: #556;
 }
 
-form button {
-    width: 100%;
-    padding: 12px;
-    background: #ff3d3d;
-    color: white;
-    font-weight: 600;
-    border: none;
-    border-radius: 10px;
+.input-group input:focus {
+    box-shadow: inset 0 0 0 2px #00e054;
+}
+
+/* Opções do form */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
-    transition: .3s;
+    font-size: 13px;
+    color: #9ab;
 }
 
-form button:hover {
-    opacity: 0.8;
+.remember-me input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #00e054;
+    cursor: pointer;
 }
 
-.forgot {
-    margin-top: 12px;
-    display: inline-block;
-    color: #ccc;
+.forgot-inline {
+    color: #00e054;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.forgot-inline:hover {
+    color: #fff;
+}
+
+/* Botão de login */
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    background: #00e054;
+    color: #14181c;
+    font-weight: 700;
     font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+}
+
+.login-btn:hover {
+    background: #00ff5e;
+}
+
+.login-btn:active {
+    transform: scale(0.98);
+}
+
+/* Divisor */
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: #556;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #456;
+}
+
+.divider span {
+    padding: 0 15px;
+}
+
+/* Botões sociais */
+.social-login {
+    display: flex;
+    gap: 10px;
+}
+
+.social-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #456;
+    background: transparent;
+    color: #9ab;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.social-btn:hover {
+    border-color: #9ab;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Link de cadastro */
+.signup-link {
+    margin-top: 25px;
+    font-size: 14px;
+    color: #9ab;
+    text-align: center;
+}
+
+.signup-link a {
+    color: #00e054;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.signup-link a:hover {
+    color: #fff;
+}
+
+/* Footer mini */
+.login-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #2c3440;
+    text-align: center;
+}
+
+.login-footer p {
+    color: #556;
+    font-size: 12px;
+}
+
+.login-footer a {
+    color: #9ab;
     text-decoration: none;
 }
 
-.forgot:hover {
-    text-decoration: underline;
+.login-footer a:hover {
+    color: #fff;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .login-header {
+        padding: 15px 20px;
+    }
+    
+    .header-nav {
+        display: none;
+    }
+
+    .login-hero {
+        height: 40vh;
+    }
+
+    .login-content {
+        margin-top: -80px;
+    }
+
+    .tagline h2 {
+        font-size: 24px;
+    }
+
+    .login-box {
+        padding: 30px 25px;
+    }
+
+    .social-login {
+        flex-direction: column;
+    }
 }

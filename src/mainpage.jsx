@@ -90,8 +90,8 @@ function MainPage() {
                 </div>
 
                 <div className="content-trailer">
-                    <div class="content-trailer">
-                        <div class="trailer-container">
+                    <div className="content-trailer">
+                        <div className="trailer-container">
                             <iframe
                                 src="https://www.youtube.com/embed/QdBZY2fkU-0"
                                 title="GTA VI Trailer"

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom/client";
 import MainPage from "./mainpage";
 import LoginPage from "./loginPage";
 
@@ -16,4 +17,8 @@ function App() {
     );
 }
 
-export default App;
+ReactDOM.createRoot(document.getElementById("root")).render(
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>
+);
