@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: gamesetter_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dockerpassword # Senha padrão pro time dev
+      POSTGRES_DB: gamesetter_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

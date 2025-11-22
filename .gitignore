@@ -22,3 +22,11 @@ dist-ssr
 
 # Se houver algum vídeo específico que não tenha extensão mp4/mov mas seja pesado:
 # src/assets/nome-do-arquivo-especifico
+
+/backend/.env
+
+# Ignora todas as imagens de upload
+backend/uploads/*
+
+# Mas NÃO ignora o arquivo .gitkeep (garante que a pasta exista no clone)
+!backend/uploads/.gitkeep

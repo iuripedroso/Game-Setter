@@ -1,22 +1,38 @@
 const express = require('express');
 const cors = require('cors');
+const routes = require('./src/routes/index');
+const AppError = require('./src/utils/AppError');
+const uploadConfig = require('./src/config/upload');
+require('./src/database'); 
+
 const app = express();
 
-// Configuração para ler JSON
 app.use(express.json());
-
-// Configuração do CORS (Liberar acesso do Front)
 app.use(cors());
 
-// Rota de Teste
-app.get('/', (req, res) => {
-    res.send('Back-end do Game Setter está rodando! 🚀');
+app.use(routes); // <--- Usa na raiz, sem prefixo extra
+
+app.use('/files', express.static(uploadConfig.directory));
+
+app.use((err, req, res, next) => {
+  // Se for um erro que a gente conhece (AppError)
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      status: 'error',
+      message: err.message,
+    });
+  }
+
+  // Se for um erro desconhecido (bug, banco fora do ar, código errado)
+  console.error(err); // Imprime no terminal pra gente arrumar
+
+  return res.status(500).json({
+    status: 'error',
+    message: 'Internal server error',
+  });
 });
 
-// Aqui futuramente virão as rotas de Login e Jogos
-// Ex: app.use('/api/users', userRoutes);
-
-const PORT = 3001; // Usamos 3001 porque o React geralmente usa a 3000 ou 5173
+const PORT = 3001;
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
