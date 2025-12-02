@@ -29,6 +29,23 @@ class User extends Model {
     });
   }
 
+  static associate(models) {
+    // Relação: Quem eu sigo (Meus ídolos)
+    this.belongsToMany(models.User, {
+      foreignKey: 'follower_id', // Eu sou o seguidor
+      as: 'following',           // Vou chamar essa lista de "following"
+      through: 'user_follows',   // Nome da tabela pivô
+    });
+
+    // Relação: Quem me segue (Meus fãs)
+    this.belongsToMany(models.User, {
+      foreignKey: 'following_id', // Eu sou o seguido
+      as: 'followers',            // Vou chamar essa lista de "followers"
+      through: 'user_follows',
+    });
+
+  }
+
   checkPassword(password) {
     return bcrypt.compare(password, this.password_hash);
   }

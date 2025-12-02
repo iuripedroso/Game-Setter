@@ -1,4 +1,3 @@
-// backend/config/database.js
 require('dotenv').config();
 
 module.exports = {
@@ -11,5 +10,11 @@ module.exports = {
   define: {
     timestamps: true,
     underscored: true,
+  },
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false, // Necessário para aceitar o certificado do Supabase
+    },
   },
 };
