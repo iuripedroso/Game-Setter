@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import "./style.css";
 import VideoFile from "./assets/video.mp4";
-import reviewsData from "./data/userReviews.json"; // <-- importa o JSON
+import reviewsData from "./data/userReviews.json";
 
-function MainPage() {
+function MainPage({ goToProfile }) {
 
     useEffect(() => {
         function shuffleStep(word) {
@@ -81,6 +81,14 @@ function MainPage() {
                         <a href="#" className="c-header-menu">
                             <span>S</span><span>o</span><span>b</span><span>r</span><span>e</span>
                         </a>
+
+                        <button
+                            className="c-header-menu"
+                            style={{ background: "none", border: "none", cursor: "pointer" }}
+                            onClick={goToProfile}
+                        >
+                            <span>P</span><span>e</span><span>r</span><span>f</span><span>i</span><span>l</span>
+                        </button>
                     </nav>
                 </header>
 
@@ -90,14 +98,14 @@ function MainPage() {
                 </div>
 
                 <div className="content-trailer">
-                    <div class="content-trailer">
-                        <div class="trailer-container">
+                    <div className="content-trailer">
+                        <div className="trailer-container">
                             <iframe
                                 src="https://www.youtube.com/embed/QdBZY2fkU-0"
                                 title="GTA VI Trailer"
-                                frameborder="0"
+                                frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                allowfullscreen>
+                                allowFullScreen>
                             </iframe>
                         </div>
                     </div>
@@ -114,13 +122,6 @@ function MainPage() {
                 <div className="popular04"></div>
                 <div className="popular05"></div>
             </div>
-
-            {/* <div className="below-video">
-                <h1>ㅤ</h1>
-                <h1>ㅤ</h1>
-                <h1>ㅤ</h1>
-                <h1>ㅤ</h1>
-            </div> */}
 
             <div className="reviews-section">
                 <div className="reviews-header">
@@ -209,10 +210,7 @@ function MainPage() {
             </footer>
 
         </main>
-
     );
-
-
 }
 
 export default MainPage;

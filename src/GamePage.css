@@ -1,0 +1,300 @@
+/* GamePage.css */
+@import url('https://fonts.googleapis.com/css2?family=Graphik&family=Roboto:wght@300;400;500;700;900&display=swap');
+
+:root {
+  --bg-body: #14181c;
+  --bg-header: #2c3440;
+  --bg-panel: #445566;
+  --text-primary: #ffffff;
+  --text-secondary: #9ab;
+  --text-muted: #678;
+  --brand-green: #00e054;
+  --brand-orange: #ff8000;
+  --border-color: #2c3440;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+}
+
+/* --- Layout Principal --- */
+.lb-container {
+  max-width: 950px; /* Largura padrão do Letterboxd */
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Hero / Backdrop --- */
+.hero-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 600px;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero-backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, var(--bg-body) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, var(--bg-body) 100%);
+  filter: blur(2px) brightness(0.6);
+}
+
+/* --- Grid do Conteúdo Superior --- */
+.game-header-grid {
+  display: grid;
+  grid-template-columns: 230px 1fr 280px; /* Poster | Info | Sidebar */
+  gap: 40px;
+  margin-top: 60px; /* Espaço para navbar fictícia */
+  margin-bottom: 60px;
+}
+
+/* Coluna 1: Poster */
+.poster-container img {
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Coluna 2: Informações */
+.game-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.game-title {
+  font-family: 'Roboto', serif; /* Letterboxd usa TiemposHeadline ou similar para titulos */
+  font-weight: 900;
+  font-size: 2.2rem;
+  line-height: 1.1;
+  margin: 0;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+}
+
+.game-meta {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.game-meta a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.tagline {
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.synopsis {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #9ab;
+  font-family: 'Georgia', serif; /* Fonte serifada para o texto corrido */
+}
+
+/* Abas de Elenco/Crew */
+.tabs {
+  display: flex;
+  gap: 15px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.tabs span:first-child {
+  color: var(--brand-green);
+  border-bottom: 2px solid var(--brand-green);
+  padding-bottom: 8px;
+}
+
+.cast-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cast-chip {
+  background: #283038;
+  color: #c8d4e0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.cast-chip:hover {
+  background: #384048;
+  color: #fff;
+}
+
+/* Coluna 3: Sidebar (Painel de Ações) */
+.sidebar-panel {
+  background-color: #242c34; /* Fundo do painel lateral */
+  border-radius: 6px;
+  padding: 0;
+  overflow: hidden;
+  height: fit-content;
+  border: 1px solid #303840;
+}
+
+.action-row {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px 10px;
+  background: #445566;
+  border-bottom: 1px solid #14181c;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  color: #bcd;
+  cursor: pointer;
+  font-size: 0.7rem;
+  gap: 5px;
+}
+
+.action-btn:hover {
+  color: #fff;
+}
+
+.action-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.rating-section {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #303840;
+}
+
+.stars {
+  color: #2c3440; /* Estrelas vazias */
+  font-size: 3rem;
+  cursor: pointer;
+}
+
+.stars span:hover, .stars span.active {
+  color: var(--brand-green); /* Verde Letterboxd */
+}
+
+.sidebar-links {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-link {
+  padding: 12px 15px;
+  color: #9ab;
+  text-decoration: none;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #303840;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sidebar-link:hover {
+  background-color: #2c3440;
+  color: #fff;
+}
+
+/* --- Seção de Reviews --- */
+.reviews-section {
+  margin-top: 40px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+.review-item {
+  display: flex;
+  gap: 15px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.review-content h4 {
+  margin: 0 0 5px 0;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.review-content h4 span {
+  color: var(--text-muted);
+  font-weight: normal;
+  margin-left: 5px;
+}
+
+.star-rating {
+  color: var(--brand-green);
+  font-size: 0.8rem;
+}
+
+.review-text {
+  font-size: 0.95rem;
+  color: #9ab;
+  margin: 8px 0;
+  line-height: 1.4;
+  font-family: 'Georgia', serif;
+}
+
+.review-footer {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.like-heart {
+  color: #ff8000;
+}
