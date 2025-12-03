@@ -9,21 +9,19 @@ module.exports = {
       },
       rating: {
         type: Sequelize.INTEGER,
-        allowNull: false, // Nota é obrigatória (0 a 5, ou 0 a 100)
+        allowNull: false,
       },
       comment: {
         type: Sequelize.TEXT,
-        allowNull: true, // Comentário pode ser opcional
+        allowNull: true, 
       },
-      // Chave Estrangeira: Usuário
       user_id: {
         type: Sequelize.UUID,
         references: { model: 'users', key: 'id' },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE', // Se deletar o usuário, deleta as reviews dele
+        onDelete: 'CASCADE', 
         allowNull: false,
       },
-      // Chave Estrangeira: Jogo
       game_id: {
         type: Sequelize.UUID,
         references: { model: 'games', key: 'id' },

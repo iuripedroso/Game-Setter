@@ -3,7 +3,6 @@ const { Model, DataTypes } = require('sequelize');
 class Game extends Model {
   static init(sequelize) {
     super.init({
-      // --- ADICIONE ISTO ---
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,

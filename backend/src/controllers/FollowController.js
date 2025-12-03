@@ -2,10 +2,9 @@ const User = require('../models/User');
 const AppError = require('../utils/AppError');
 
 module.exports = {
-  // Seguir ou Deixar de Seguir (Toggle)
   async toggleFollow(req, res) {
-    const { user_id } = req.params; // ID de quem eu quero seguir
-    const followerId = req.userId;  // Meu ID (do token)
+    const { user_id } = req.params;
+    const followerId = req.userId; 
 
     if (user_id === followerId) {
       throw new AppError('Você não pode seguir a si mesmo.');
@@ -18,19 +17,17 @@ module.exports = {
 
     const me = await User.findByPk(followerId);
 
-    // Verifica se já sigo
     const isFollowing = await me.hasFollowing(userToFollow);
 
     if (isFollowing) {
       await me.removeFollowing(userToFollow);
-      return res.status(204).send(); // 204 = No Content (Sucesso sem corpo)
+      return res.status(204).send();
     } else {
       await me.addFollowing(userToFollow);
       return res.status(201).send();
     }
   },
 
-  // Listar quem o usuário segue
   async listFollowing(req, res) {
     const { user_id } = req.params;
     
@@ -39,7 +36,7 @@ module.exports = {
         { 
           association: 'following', 
           attributes: ['id', 'name', 'avatar'],
-          through: { attributes: [] } // Não trazer dados da tabela pivô
+          through: { attributes: [] } 
         }
       ]
     });
@@ -49,7 +46,6 @@ module.exports = {
     return res.json(user.following);
   },
 
-  // Listar seguidores do usuário
   async listFollowers(req, res) {
     const { user_id } = req.params;
 

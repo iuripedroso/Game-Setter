@@ -4,13 +4,11 @@ const bcrypt = require('bcryptjs');
 class User extends Model {
   static init(sequelize) {
     super.init({
-      // --- ADICIONE ISTO ---
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      // --------------------
       name: DataTypes.STRING,
       email: DataTypes.STRING,
       is_admin: DataTypes.BOOLEAN,
@@ -30,17 +28,15 @@ class User extends Model {
   }
 
   static associate(models) {
-    // Relação: Quem eu sigo (Meus ídolos)
     this.belongsToMany(models.User, {
-      foreignKey: 'follower_id', // Eu sou o seguidor
-      as: 'following',           // Vou chamar essa lista de "following"
-      through: 'user_follows',   // Nome da tabela pivô
+      foreignKey: 'follower_id', 
+      as: 'following',          
+      through: 'user_follows',   
     });
 
-    // Relação: Quem me segue (Meus fãs)
     this.belongsToMany(models.User, {
-      foreignKey: 'following_id', // Eu sou o seguido
-      as: 'followers',            // Vou chamar essa lista de "followers"
+      foreignKey: 'following_id', 
+      as: 'followers',            
       through: 'user_follows',
     });
 

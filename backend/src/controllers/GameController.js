@@ -1,16 +1,25 @@
 const Game = require('../models/Game');
 const AppError = require('../utils/AppError');
+const { Op } = require('sequelize');
 
 module.exports = {
-  // Listar todos os jogos
   async index(req, res) {
+    const { title } = req.query;
+
+    const where = {};
+
+    if (title) {
+      where.title = { [Op.iLike]: `%${title}%` };
+    }
+
     const games = await Game.findAll({
+      where,
       order: [['title', 'ASC']]
     });
+
     return res.json(games);
   },
 
-  // Criar um novo jogo
   async store(req, res) {
     const { title, description, publisher, release_date, cover_url } = req.body;
 
@@ -31,7 +40,6 @@ module.exports = {
     return res.status(201).json(game);
   },
 
-  // Mostrar um jogo específico
   async show(req, res) {
     const { id } = req.params;
     const game = await Game.findByPk(id);
