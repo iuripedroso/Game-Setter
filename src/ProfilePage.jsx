@@ -154,7 +154,6 @@ const ProfilePage = () => {
           {/* Direita: Sidebar */}
           <aside className="right-column">
             
-            /* Seção Watchlist */
             <section className="watchlist-section">
                 <div className="section-header">
                     <h2>Watchlist <span style={{color: '#fff', fontSize: '0.8rem'}}>34</span></h2>
