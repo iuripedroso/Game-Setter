@@ -7,6 +7,7 @@ import MainPage from "./mainpage";
 import LoginPage from "./loginPage";
 import ProfilePage from "./ProfilePage";
 import GamePage from "./GamePage"; 
+import GamesScreen from "./jogos";
 
 const ProfileWrapper = () => {
     const { id } = useParams(); // Pega o ID da URL
@@ -18,6 +19,13 @@ const ProfileWrapper = () => {
             goToMain={() => navigate('/')} 
         />
     );
+};
+
+const ReviewsWrapper = () => {
+    const { id } = useParams(); 
+    const navigate = useNavigate();
+    // Passamos a prop showAllReviews={true}
+    return <ProfilePage viewingUserId={id} showAllReviews={true} goToMain={() => navigate('/')} />;
 };
 
 function App() {
@@ -62,6 +70,9 @@ function App() {
                     path="/game/:id" 
                     element={<GamePage />} 
                 />
+
+                <Route path="/games/:id" element={<GamesScreen />} />
+                <Route path="/games" element={<GamesScreen />} />
 
                 {/* Se digitar url errada, volta pra home */}
                 <Route path="*" element={<Navigate to="/" />} />

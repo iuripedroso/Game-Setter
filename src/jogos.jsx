@@ -1,43 +1,88 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom"; // ADICIONE useParams
+import "./jogos.css"; 
+
+const api = axios.create({
+  baseURL: 'http://localhost:3001',
+});
+
+const FILE_URL = 'http://localhost:3001/files';
 
 export default function GamesScreen() {
+  const navigate = useNavigate();
+  const { id } = useParams(); // PEGA O ID DA URL (se existir)
+  
   const [games, setGames] = useState([]);
   const [filteredGames, setFilteredGames] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [pageTitle, setPageTitle] = useState("PLAYED"); // Novo estado para o título
+  
+  // Filtros
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("title");
   const [filterRating, setFilterRating] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const token = localStorage.getItem('token');
+
+  const getImageUrl = (url) => {
+    if (!url) return 'https://placehold.co/300x450/1c2229/9ab?text=No+Cover';
+    if (url.startsWith('http')) return url;
+    return `${FILE_URL}/${url}`;
+  };
+
   useEffect(() => {
     loadUserGames();
-  }, []);
+  }, [id]); // Recarrega se o ID mudar
 
   async function loadUserGames() {
     try {
       setIsLoading(true);
+
+      if (!token) {
+        navigate('/');
+        return;
+      }
+
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+
+      let targetUserId = id;
+
+      // Se não veio ID na URL (ex: acessou /games direto), pega o meu ID
+      if (!targetUserId) {
+         const meResponse = await api.get('/users/me');
+         targetUserId = meResponse.data.id;
+      } else {
+         // Se veio ID, vamos buscar o nome desse usuário para por no título (Opcional, mas fica chique)
+         try {
+            const userRes = await api.get(`/users/${targetUserId}`);
+            setPageTitle(`${userRes.data.name}'s GAMES`);
+         } catch (err) {
+            setPageTitle("PLAYED");
+         }
+      }
+
+      // Busca as reviews do usuário alvo (targetUserId)
+      const reviewsResponse = await api.get(`/reviews/user/${targetUserId}`);
+      const reviewsData = reviewsResponse.data;
+
+      const formattedGames = reviewsData.map(review => {
+        const game = review.game || {};
+        return {
+          id: review.id,
+          realGameId: game.id,
+          title: game.title || "Sem Título",
+          year: game.release_date ? parseInt(game.release_date.split('-')[0]) : "N/A",
+          rating: review.rating,
+          platform: game.publisher || "PC",
+          cover: getImageUrl(game.cover_url)
+        };
+      });
       
-      const mockGames = [
-        { id: 1, title: "The Last of Us", year: 2013, rating: 5, platform: "PS4", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r7f.jpg" },
-        { id: 2, title: "God of War", year: 2018, rating: 5, platform: "PS4", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1tmu.jpg" },
-        { id: 3, title: "Red Dead Redemption 2", year: 2018, rating: 4, platform: "PS4", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1q1f.jpg" },
-        { id: 4, title: "Elden Ring", year: 2022, rating: 5, platform: "PC", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg" },
-        { id: 5, title: "Hollow Knight", year: 2017, rating: 5, platform: "PC", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co3pxp.jpg" },
-        { id: 6, title: "Stardew Valley", year: 2016, rating: 4, platform: "PC", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co5qvj.jpg" },
-        { id: 7, title: "Minecraft", year: 2011, rating: 5, platform: "Multi", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co3qxu.jpg" },
-        { id: 8, title: "Portal 2", year: 2011, rating: 5, platform: "PC", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rs5.jpg" },
-        { id: 9, title: "Hades", year: 2020, rating: 5, platform: "PC", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2i0o.jpg" },
-        { id: 10, title: "Celeste", year: 2018, rating: 4, platform: "PC", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rfy.jpg" },
-        { id: 11, title: "Sekiro", year: 2019, rating: 4, platform: "PS4", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1mqh.jpg" },
-        { id: 12, title: "Bloodborne", year: 2015, rating: 5, platform: "PS4", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1vcf.jpg" },
-        { id: 13, title: "Dark Souls III", year: 2016, rating: 5, platform: "PC", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1vcg.jpg" },
-        { id: 14, title: "Spider-Man", year: 2018, rating: 4, platform: "PS4", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.jpg" },
-        { id: 15, title: "Uncharted 4", year: 2016, rating: 4, platform: "PS4", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r7t.jpg" },
-        { id: 16, title: "Horizon Zero Dawn", year: 2017, rating: 4, platform: "PS4", cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1nzm.jpg" },
-      ];
-      
-      setGames(mockGames);
-      setFilteredGames(mockGames);
+      setGames(formattedGames);
+      setFilteredGames(formattedGames);
+
     } catch (error) {
       console.error("Erro ao carregar jogos:", error);
     } finally {
@@ -45,6 +90,7 @@ export default function GamesScreen() {
     }
   }
 
+  // --- EFEITOS DE FILTRO (IGUAIS) ---
   useEffect(() => {
     let result = [...games];
 
@@ -60,7 +106,11 @@ export default function GamesScreen() {
 
     result.sort((a, b) => {
       if (sortBy === "title") return a.title.localeCompare(b.title);
-      if (sortBy === "year") return b.year - a.year;
+      if (sortBy === "year") {
+         const yearA = typeof a.year === 'number' ? a.year : 0;
+         const yearB = typeof b.year === 'number' ? b.year : 0;
+         return yearB - yearA;
+      }
       if (sortBy === "rating") return b.rating - a.rating;
       return 0;
     });
@@ -72,12 +122,7 @@ export default function GamesScreen() {
     return (
       <div className="rating-overlay">
         {[1, 2, 3, 4, 5].map((star) => (
-          <span
-            key={star}
-            className={star <= rating ? "star filled" : "star empty"}
-          >
-            ★
-          </span>
+          <span key={star} className={star <= rating ? "star filled" : "star empty"}>★</span>
         ))}
       </div>
     );
@@ -88,29 +133,29 @@ export default function GamesScreen() {
       {/* Header */}
       <header className="games-header">
         <div className="header-wrapper">
-          <a href="#" className="logo-link">
-            <div className="logo-dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
+          <a href="#" className="logo-link" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+            <div className="logo-dots"><span></span><span></span><span></span></div>
             <span className="logo-text">GAMESETTER</span>
           </a>
           <nav className="header-nav">
-            <a href="#">PROFILE</a>
-            {/* <a href="#">LISTS</a> */}
+            {/* Ao clicar em Profile, volta para o perfil DO DONO DA LISTA (id) ou o meu se não tiver id */}
+            <a href="#" onClick={(e) => { 
+                e.preventDefault(); 
+                if(id) navigate(`/profile/${id}`); // Volta para o perfil do dono da lista
+                else navigate('/profile');         // Volta para o meu perfil
+            }}>PROFILE</a>
             <a href="#" className="active">GAMES</a>
           </nav>
         </div>
       </header>
 
-      {/* Page Title */}
+      {/* Page Title Dinâmico */}
       <div className="page-title">
-        <h1>PLAYED</h1>
+        <h1 style={{textTransform: 'uppercase'}}>{pageTitle}</h1> 
         <p className="games-count">{filteredGames.length} games</p>
       </div>
 
-      {/* Filters Bar */}
+      {/* Filters Bar (Mantido igual) */}
       <div className="filters-wrapper">
         <div className="filters-bar">
           <div className="filters-left">
@@ -121,27 +166,28 @@ export default function GamesScreen() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-box"
             />
-
-            
-
-                      </div>
-
+             <select className="filter-dropdown" value={filterRating} onChange={(e) => setFilterRating(e.target.value)}>
+                <option value="all">ALL RATINGS</option>
+                <option value="5">5 STARS</option>
+                <option value="4">4 STARS</option>
+                <option value="3">3 STARS</option>
+                <option value="2">2 STARS</option>
+                <option value="1">1 STAR</option>
+            </select>
+            <select className="filter-dropdown" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <option value="title">SORT BY TITLE</option>
+                <option value="year">SORT BY YEAR</option>
+                <option value="rating">SORT BY RATING</option>
+            </select>
+          </div>
           <div className="view-buttons">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
-            >
-              <svg fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
+            <button onClick={() => setViewMode("grid")} className={`view-btn ${viewMode === "grid" ? "active" : ""}`}>
+               {/* SVG Grid */}
+               <svg fill="currentColor" viewBox="0 0 20 20" width="20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
             </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`view-btn ${viewMode === "list" ? "active" : ""}`}
-            >
-              <svg fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
-              </svg>
+            <button onClick={() => setViewMode("list")} className={`view-btn ${viewMode === "list" ? "active" : ""}`}>
+               {/* SVG List */}
+               <svg fill="currentColor" viewBox="0 0 20 20" width="20"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" /></svg>
             </button>
           </div>
         </div>
@@ -156,19 +202,10 @@ export default function GamesScreen() {
         ) : viewMode === "grid" ? (
           <div className="games-grid">
             {filteredGames.map((game) => (
-              <div key={game.id} className="game-card">
+              <div key={game.id} className="game-card" onClick={() => navigate(`/game/${game.realGameId}`)}>
                 <div className="game-poster-wrapper">
-                  <img
-                    src={game.cover}
-                    alt={game.title}
-                    className="game-poster"
-                    onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/300x450/1c2229/9ab?text=No+Image";
-                    }}
-                  />
-                  <div className="poster-overlay">
-                    {renderStars(game.rating)}
-                  </div>
+                  <img src={game.cover} alt={game.title} className="game-poster" />
+                  <div className="poster-overlay">{renderStars(game.rating)}</div>
                 </div>
                 <h3 className="game-title">{game.title}</h3>
                 <p className="game-year">{game.year}</p>
@@ -178,15 +215,8 @@ export default function GamesScreen() {
         ) : (
           <div className="games-list">
             {filteredGames.map((game) => (
-              <div key={game.id} className="game-list-item">
-                <img
-                  src={game.cover}
-                  alt={game.title}
-                  className="list-poster"
-                  onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/64x96/1c2229/9ab?text=?";
-                  }}
-                />
+              <div key={game.id} className="game-list-item" onClick={() => navigate(`/game/${game.realGameId}`)}>
+                <img src={game.cover} alt={game.title} className="list-poster" />
                 <div className="list-content">
                   <div className="list-info">
                     <h3>{game.title}</h3>
@@ -194,12 +224,7 @@ export default function GamesScreen() {
                   </div>
                   <div className="list-rating">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <span
-                        key={star}
-                        className={star <= game.rating ? "star filled" : "star empty"}
-                      >
-                        ★
-                      </span>
+                      <span key={star} className={star <= game.rating ? "star filled" : "star empty"}>★</span>
                     ))}
                   </div>
                 </div>

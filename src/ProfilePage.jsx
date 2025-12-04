@@ -290,7 +290,7 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
               <span>• {user.email}</span>
             </div>
             <div className="stats-row">
-              <div className="stat"><strong>{stats.films}</strong> <a href="#">Games</a></div>
+              <div className="stat"><strong>{stats.films}</strong> <a href="#" onClick={(e) => {e.preventDefault(); navigate(`/games/${user.id}`);}}>Games</a></div>
               <div className="stat"><strong>{stats.following}</strong> <a href="#">Following</a></div>
               <div className="stat"><strong>{stats.followers}</strong> <a href="#">Followers</a></div>
             </div>
@@ -299,8 +299,9 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
 
         <div className="profile-nav">
           <nav>
-            <a href="#" className="active">Profile</a>
-            <a href="#">Reviews</a>
+            <a href="#" className="active" onClick={(e) => e.preventDefault()}>Profile</a>
+            {/* 👇 MUDANÇA AQUI: Redireciona para /games 👇 */}
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/games/${user.id}`); }}>Games</a>
           </nav>
         </div>
 
