@@ -199,3 +199,58 @@ body {
 .review-text { font-size: 0.95rem; color: #9ab; margin: 8px 0; line-height: 1.4; font-family: 'Georgia', serif; }
 .review-footer { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
 .like-heart { color: #ff8000; }
+
+/* --- Estilos do Modal de Review --- */
+.log-modal {
+    max-width: 600px;
+}
+
+.game-preview-modal {
+    display: flex;
+    gap: 15px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #2c3440;
+}
+
+/* Ajustes nas estrelas interativas */
+.modal-star {
+    transition: transform 0.1s;
+}
+
+.modal-star:hover {
+    transform: scale(1.2);
+}
+
+.modal-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #9ab;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.modal-form textarea {
+    width: 100%;
+    background-color: #2c3440;
+    border: 1px solid #456;
+    border-radius: 4px;
+    padding: 12px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+}
+
+.modal-form textarea:focus {
+    outline: none;
+    border-color: #fff;
+    background-color: #fff;
+    color: #14181c;
+}
+
+/* Exibição da Média na Sidebar */
+.rating-section .stars {
+    line-height: 1;
+    font-weight: 300;
+    font-family: 'Graphik', sans-serif; /* Se tiver, senão Roboto */
+}
