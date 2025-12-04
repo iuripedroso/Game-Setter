@@ -15,6 +15,7 @@ html {
 .main-container {
     width: 100vw;
     overflow-x: hidden;
+    background-color: rgb(255, 255, 255);
 }
 
 .video-area {
@@ -51,28 +52,34 @@ html {
     z-index: 0;
 }
 
-
-.overlay-header {
-    position: relative;
-
-    top: 0;
-    width: 100%;
-    padding: 20px 40px 20px 27px;
-    color: white;
+.main-logo{
     display: flex;
-    z-index: 2;
-
-    /* border: solid 2px white; */
-}
-
-.logo {
+    align-items: center;
+    gap: 10px;
+    margin-left: 10px;
+    margin-top: 0; 
     color: #fff;
     font-size: 22px;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
     font-family: 'Graphik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-transform: uppercase;
+    pointer-events: none;
 
+}
+
+.logo-pontos {
+    display: flex;
+    gap: 3px;
+}
+
+.logo-pontos span {
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+    margin-top: 2.5px;
+    border-radius: 50%;
 }
 
 .logo-pontos span:nth-child(1) {
@@ -86,16 +93,31 @@ html {
 .logo-pontos span:nth-child(3) {
     background: #40bcf4;
 }
-.logo-pontos {
+
+.main-text {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.overlay-header {
+    position: relative;
+
+    top: 0;
+    width: 100%;
+    padding: 20px 40px 20px 27px;
+    color: white;
     display: flex;
-    gap: 3px;
-    margin-right: 10px;
+    z-index: 2;
+
+    /* border: solid 2px white; */
 }
 
-.logo-pontos span {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
+.overlay-header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    /* border: solid 2px white; */
 }
 
 .itens {
@@ -206,96 +228,40 @@ html {
     /* box-shadow: 0 0 90px rgba(255, 0, 80, 0.6); brilho ao passar o mouse */
 }
 
-.popular {
-    /* border: solid 2px rgb(0, 0, 0); */
-    margin: auto;
+/* Substitua as classes .popular01, .popular02, etc por isso: */
 
-    height: 300px;
+.popular {
+    margin: auto;
+    min-height: 250px; 
     width: 80%;
     z-index: 2;
     display: flex;
     justify-content: center;
-
-
+    flex-wrap: wrap; 
+    gap: 24px;
     margin-bottom: 25px;
     padding: 20px;
 }
 
-/* quem for fazer o back, colocar pelo banco */
-.popular01,
-.popular02,
-.popular03,
-.popular04,
-.popular05 {
+.popular-card {
     width: 166px;
-    aspect-ratio: 16 / 9;
-    margin: 12px;
-    background-size: contain;
+    aspect-ratio: 16 / 9; /* Formato Widescreen igual seus prints */
+    background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
-    background-color: #ffffffb6;
-
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
-
-
-    border: transparent 2px solid;
-
+    background-color: #2c3440;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.popular01:hover,
-.popular02:hover,
-.popular03:hover,
-.popular04:hover,
-.popular05:hover {
+.popular-card:hover {
     cursor: pointer;
     transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+    border-color: #fff;
 }
-
-.popular01 {
-    background-image: url(https://www.metacritic.com/a/img/catalog/provider/6/3/6-1-9662-13.jpg);
-
-}
-
-
-.popular02 {
-    background-image: url(https://www.metacritic.com/a/img/resize/dd8bc8263cb4b0dc1ec76d107cf6ca5d1cd5dae8/catalog/provider/6/3/6-1-1724-13.jpg?auto=webp&fit=cover&height=300&width=200);
-}
-
-.popular03 {
-    background-image: url(https://www.metacritic.com/a/img/resize/ff49ce46fd98c3e4bbbe0345f584c937d94e7411/catalog/provider/6/3/6-1-52990-13.jpg?auto=webp&fit=cover&height=300&width=200);
-}
-
-.popular04 {
-    background-image: url(https://www.metacritic.com/a/img/resize/91b0194cfb43565bc09b3512f46fde2db9b2bd02/catalog/provider/7/2/7-1757393088.jpg?auto=webp&fit=cover&height=300&width=200);
-}
-
-.popular05 {
-    background-image: url(https://www.metacritic.com/a/img/resize/6ea15a68fed2f04d68e7056a49eaf56972db34d9/catalog/provider/7/2/7-1758081818.jpg?auto=webp&fit=cover&height=300&width=200);
-}
-
-.popularh2 {
-    height: auto;
-    width: 80%;
-
-    margin: auto;
-    margin-top: 100px;
-
-    border-bottom: solid 2px rgb(0, 0, 0);
-    z-index: 2;
-}
-
-.popularh2 h2 {
-    font-size: 25px;
-    font-weight: 500;
-    color: rgb(0, 0, 0);
-    text-transform: capitalize;
-}
-
-
-/* 55555555555555555555555555555555555555555555 */
-
 
 .reviews-section {
     width: 80%;
@@ -425,8 +391,8 @@ html {
     font-weight: 500;
 }
 
-.review-actions a:hover {
-    text-decoration: none;
+.review-actions a:hover{
+     text-decoration: none; 
 }
 
 
@@ -506,7 +472,6 @@ html {
 }
 
 .footer-newsletter input {
-    margin-top: 21px;
     padding: 10px;
     border: none;
     background: #222;
@@ -538,4 +503,3 @@ html {
     font-size: 14px;
 }
 
-/* fim da main */
