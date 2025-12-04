@@ -22,5 +22,22 @@ module.exports = {
   async index(req, res) {
     const users = await User.findAll();
     return res.json(users);
+  },
+
+  async update(req, res) {
+  // Pega o ID do usuário logado pelo token
+  const { userId } = req; 
+  const { name, biography } = req.body;
+
+  const user = await User.findByPk(userId);
+
+  if (!user) {
+    return res.status(400).json({ error: 'User not found' });
   }
+
+  // Atualiza apenas os campos enviados
+  await user.update({ name, biography });
+
+  return res.json({ id: user.id, name: user.name, biography: user.biography });
+}
 };
