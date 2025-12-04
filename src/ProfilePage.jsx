@@ -1,331 +1,409 @@
-import React from 'react';
-import { MapPin } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Star, UserPlus, UserCheck } from 'lucide-react';
 import './ProfilePage.css';
 
-const ProfilePage = ({ goToMain }) => {   // ⬅️ Adicionado aqui
+const api = axios.create({
+  baseURL: 'http://localhost:3001',
+});
 
-  const user = {
-    name: "yangabrielreis",
-    handle: "yangabrielreis",
-    avatar: "https://a.ltrbxd.com/resized/avatar/upload/6/2/5/2/2/9/4/shard/avtr-0-1000-0-1000-crop.jpg?v=0f75688c9f",
-    bio: "papo reto",
-    location: "Brazil",
-    website: "letterboxd.com",
-    stats: {
-      films: 410,
-      following: 90,
-      followers: 90
+const FILE_URL = 'http://localhost:3001/files';
+
+const ProfilePage = ({ goToMain, viewingUserId = null }) => {
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ films: 0, following: 0, followers: 0 });
+  const [userReviews, setUserReviews] = useState([]);
+
+  const [isOwnProfile, setIsOwnProfile] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  // Estados do Modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [editAvatarFile, setEditAvatarFile] = useState(null);
+  const [editAvatarPreview, setEditAvatarPreview] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const token = localStorage.getItem('token');
+
+  const getImageUrl = (url) => {
+    if (!url) return 'https://placehold.co/150x225?text=No+Cover';
+    if (url.startsWith('http')) return url;
+    return `${FILE_URL}/${url}`;
+  };
+
+  // CORREÇÃO 1: Agora recebe o myId real para evitar erro 400 no backend
+  const checkFollowStatus = async (myCurrentId, targetProfileId) => {
+    try {
+      // Usa o ID numérico/UUID em vez de 'me'
+      const response = await api.get(`/users/${myCurrentId}/following`);
+      const myFollowingList = response.data;
+
+      const amIFollowing = myFollowingList.some(u => u.id === targetProfileId);
+      setIsFollowing(amIFollowing);
+    } catch (error) {
+      console.error("Erro ao verificar follow status:", error);
     }
   };
 
-  const favoriteFilms = [
-    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/k079fR84R59TiwHw6F4J3tX4i9.jpg",
-    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/pThyQovXQrw2m0s9x827XMiUAft.jpg",
-    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/3b8Wsk1v5Le4644l5Qy7p0B6C.jpg",
-    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/yLsuTi2q966zCjJdsZ9jCgH.jpg"
-  ];
+  const fetchUserData = async () => {
+    try {
+      if (!token) return;
+      api.defaults.headers.Authorization = `Bearer ${token}`;
 
-  const recentActivity = [
-    {
-      id: 1,
-      title: "Secret Agent",
-      poster: "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/k079fR84R59TiwHw6F4J3tX4i9.jpg",
-      rating: 3
-    },
-    {
-      id: 2,
-      title: "Knives Out",
-      poster: "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/pThyQovXQrw2m0s9x827XMiUAft.jpg",
-      rating: 3
-    },
-    {
-      id: 3,
-      title: "Tarantino's Mind",
-      poster: "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/3b8Wsk1v5Le4644l5Qy7p0B6C.jpg",
-      rating: 3
-    },
-    {
-      id: 4,
-      title: "Chuck Billy",
-      poster: "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/yLsuTi2q966zCjJdsZ9jCgH.jpg",
-      rating: 3.5
+      // 1. Quem sou eu? (Busca ID do logado)
+      let meResponse;
+      try {
+        meResponse = await api.get('/users/me');
+      } catch (err) {
+        console.error("Sessão inválida. Deslogando...");
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.reload();
+        return;
+      }
+
+      const myId = meResponse.data.id;
+
+      // 2. Define qual perfil carregar
+      // Se viewingUserId for inválido ou igual a "undefined", assume que é o meu perfil
+      let targetProfileId = myId;
+      if (viewingUserId && viewingUserId !== 'undefined' && viewingUserId !== 'null') {
+        targetProfileId = viewingUserId;
+      }
+
+      const isMyProfile = targetProfileId === myId;
+      setIsOwnProfile(isMyProfile);
+
+      // 3. Busca dados do usuário alvo
+      let userData;
+      if (isMyProfile) {
+        userData = meResponse.data;
+      } else {
+        try {
+          const userRes = await api.get(`/users/${targetProfileId}`);
+          userData = userRes.data;
+
+          // CORREÇÃO 1: Passamos myId explicitamente
+          await checkFollowStatus(myId, targetProfileId);
+        } catch (err) {
+          console.warn("Perfil não encontrado no banco de dados.");
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // 4. Carrega estatísticas em paralelo (com proteção contra falhas)
+      const [followersRes, followingRes, reviewsRes] = await Promise.allSettled([
+        api.get(`/users/${userData.id}/followers`),
+        api.get(`/users/${userData.id}/following`),
+        api.get(`/reviews/user/${userData.id}`)
+      ]);
+
+      setUser({
+        ...userData,
+        avatarUrl: userData.avatar
+          ? `${FILE_URL}/${userData.avatar}`
+          : `https://ui-avatars.com/api/?name=${userData.name}&background=random&color=fff`
+      });
+
+      const reviewsData = reviewsRes.status === 'fulfilled' ? reviewsRes.value.data : [];
+      setUserReviews(reviewsData);
+
+      setStats({
+        films: reviewsData.length || 0,
+        followers: followersRes.status === 'fulfilled' ? followersRes.value.data.length : 0,
+        following: followingRes.status === 'fulfilled' ? followingRes.value.data.length : 0
+      });
+
+    } catch (error) {
+      console.error("Erro fatal ao carregar:", error);
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const recentReviews = [
-    {
-      id: 1,
-      title: "Pièce touchée",
-      year: "1989",
-      poster: "https://via.placeholder.com/80x120/2c3440/9ab?text=Film",
-      rating: 5,
-      date: "02 Sep 2025",
-      text: "Cada dia que passa eu me sinto mais louco",
-      likes: 1
-    },
-    {
-      id: 2,
-      title: "Nickel Boys",
-      year: "2024",
-      poster: "https://via.placeholder.com/80x120/2c3440/9ab?text=Film",
-      rating: 4,
-      date: "02 Mar 2025",
-      text: "Se sou cúmplice a quem ou ao que então todos estão envolvidos nisso... A história de Nickel Boys grita diante de...",
-      likes: 3
-    }
-  ];
-
-  const popularReviews = [
-    {
-      id: 1,
-      title: "Robot Dreams",
-      year: "2023",
-      poster: "https://via.placeholder.com/80x120/2c3440/9ab?text=Film",
-      rating: 4,
-      date: "22 Sep 2024",
-      text: "A ausência de diálogos nas primeiras cenas dessa animação pode causar certa estranheza ou até me senti deslocado...",
-      likes: 6
-    }
-  ];
-
-  const watchlist = [
-    "https://www.themoviedb.org/t/p/w200/k9X79k2t8xL9p2f9.jpg",
-    "https://www.themoviedb.org/t/p/w200/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
-    "https://www.themoviedb.org/t/p/w200/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
-    "https://www.themoviedb.org/t/p/w200/8t8U0fT0.jpg"
-  ];
-
-  const diaryEntries = [
-    { date: "Dec 24", title: "Diary of a Wimpy Kid" },
-    { date: "Dec 19", title: "Pluto Junior" },
-    { date: "Dec 17", title: "Joker: Folie à Deux" },
-    { date: "Dec 17", title: "Life of Pi" },
-    { date: "Dec 16", title: "The Secret Agent" }
-  ];
-
-  const following = Array(16).fill(null);
-
-  const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const hasHalf = rating % 1 !== 0;
-    return (
-      <div className="review-stars">
-        {[...Array(fullStars)].map((_, i) => (
-          <span key={i} className="star">★</span>
-        ))}
-        {hasHalf && <span className="star half">½</span>}
-      </div>
-    );
   };
 
-  const renderActivityStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const hasHalf = rating % 1 !== 0;
-    return (
-      <div className="rating-overlay">
-        {[...Array(fullStars)].map((_, i) => (
-          <span key={i} className="star">★</span>
-        ))}
-        {hasHalf && <span className="star half">½</span>}
-      </div>
-    );
+  useEffect(() => {
+    fetchUserData();
+  }, [token, viewingUserId]);
+
+
+  const handleFollowToggle = async () => {
+    if (!user) return;
+    try {
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+      await api.post(`/users/${user.id}/follow`);
+
+      setIsFollowing(!isFollowing);
+      setStats(prev => ({
+        ...prev,
+        followers: !isFollowing ? prev.followers + 1 : prev.followers - 1
+      }));
+
+    } catch (error) {
+      console.error("Erro ao seguir:", error);
+      alert("Erro ao realizar ação.");
+    }
   };
 
-  const handleClick = (item) => {
-    alert(`Você clicou em: ${item}`);
+  // --- Funções do Modal ---
+  const openEditModal = () => {
+    setEditName(user.name);
+    setEditBio(user.biography || '');
+    setEditAvatarFile(null);
+    setEditAvatarPreview(user.avatarUrl);
+    setIsEditModalOpen(true);
   };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEditAvatarFile(file);
+      setEditAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+
+      if (editAvatarFile) {
+        const formData = new FormData();
+        formData.append('avatar', editAvatarFile);
+        await api.patch('/users/avatar', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      }
+
+      await api.put('/users', {
+        name: editName,
+        biography: editBio,
+      });
+
+      alert("Perfil atualizado!");
+      setIsEditModalOpen(false);
+      fetchUserData();
+
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+      alert("Erro ao atualizar perfil.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (loading) return <div className="profile-page-container"><h2>Carregando...</h2></div>;
+
+  // CORREÇÃO 2: Tela de "Não Encontrado" mais bonita e com botão de voltar
+  if (!user) return (
+    <div className="profile-page-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Usuário não encontrado.</h2>
+      <p style={{ color: '#888', marginBottom: '2rem' }}>Este perfil pode ter sido deletado ou o link está incorreto.</p>
+      <button
+        onClick={() => navigate('/')}
+        style={{
+          padding: '10px 20px',
+          backgroundColor: '#00e054',
+          border: 'none',
+          borderRadius: '4px',
+          color: 'white',
+          cursor: 'pointer',
+          fontWeight: 'bold'
+        }}
+      >
+        Voltar para o Início
+      </button>
+    </div>
+  );
 
   return (
     <div className="profile-page-container">
+      <header className="profile-header">
+        <a href="#" className="profile-logo" onClick={(e) => {
+          e.preventDefault();
+          if (goToMain) goToMain();
+          else navigate('/');
+        }}>
+          <div className="profile-logo-pontos"><span></span><span></span><span></span></div>
+        </a>
+        <span className="profile-logo">Gamesetter</span>
+
+        <nav className="itens">
+          <button className="c-header-menu" style={{ background: "none", border: "none", cursor: "pointer" }} onClick={() => navigate('/main')}>
+            <span>H</span><span>o</span><span>m</span><span>e</span>
+          </button>
+
+        </nav>
+      </header>
+
 
       <div className="content-wrapper">
-
-          <header className="profile-header">
-          <a
-            href="#"
-            className="profile-logo"
-            onClick={(e) => {
-              e.preventDefault();
-              if (goToMain) goToMain();   // ⬅️ corrigido (evita erro caso não seja passado)
-            }}
-          >
-            <div className="profile-logo-pontos">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </a>
-          <span className="profile-logo">Gamesetter</span>
-        </header>
-       
-        {/* Todo o resto permanece exatamente igual */}
 
         <div className="profile-section">
           <div className="avatar-container">
             <div className="avatar">
-              <img src={user.avatar} alt="Avatar" />
+              <img src={user.avatarUrl} alt="Avatar" onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }} />
             </div>
           </div>
           <div className="profile-main">
             <div className="profile-header-top">
               <h1 className="username">{user.name}</h1>
-              <button className="edit-profile-btn">Edit Profile</button>
+
+              {isOwnProfile ? (
+                <button className="edit-profile-btn" onClick={openEditModal}>
+                  Edit Profile
+                </button>
+              ) : (
+                <button
+                  className={`edit-profile-btn ${isFollowing ? 'following-btn' : 'follow-btn'}`}
+                  onClick={handleFollowToggle}
+                  style={{
+                    backgroundColor: isFollowing ? '#2c3440' : '#00e054',
+                    color: '#fff',
+                    border: isFollowing ? '1px solid #445566' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    if (isFollowing) {
+                      e.currentTarget.textContent = "Unfollow";
+                      e.currentTarget.style.backgroundColor = "#ff4d4d";
+                      e.currentTarget.style.borderColor = "#ff4d4d";
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (isFollowing) {
+                      e.currentTarget.innerHTML = "Following";
+                      e.currentTarget.style.backgroundColor = "#2c3440";
+                      e.currentTarget.style.borderColor = "#445566";
+                    }
+                  }}
+                >
+                  {isFollowing ? <>Following</> : <>Follow</>}
+                </button>
+              )}
+
             </div>
             <div className="user-info">
-              <span>★ {user.location}</span>
-              <span>• {user.website}</span>
+              <span>★ Brasil</span>
+              <span>• {user.email}</span>
             </div>
             <div className="stats-row">
-              <div className="stat"><strong>{user.stats.films}</strong> <a href="#">Games</a></div>
-              <div className="stat"><strong>{user.stats.following}</strong> <a href="#">Following</a></div>
-              <div className="stat"><strong>{user.stats.followers}</strong> <a href="#">Followers</a></div>
+              <div className="stat"><strong>{stats.films}</strong> <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/games/${user.id}`); }}>Games</a></div>
+              <div className="stat"><strong>{stats.following}</strong> <a href="#">Following</a></div>
+              <div className="stat"><strong>{stats.followers}</strong> <a href="#">Followers</a></div>
             </div>
           </div>
         </div>
 
-      
-        {/* Profile Navigation */}
         <div className="profile-nav">
           <nav>
-            <a href="#" className="active">Profile</a>
-            <a href="#">Films</a>
-
+            <a href="#" className="active" onClick={(e) => e.preventDefault()}>Profile</a>
+            {/* 👇 MUDANÇA AQUI: Redireciona para /games 👇 */}
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/games/${user.id}`); }}>Your Games</a>
           </nav>
         </div>
 
-        {/* Main Content Grid */}
         <div className="main-grid">
-
-          {/* Left Column */}
           <div className="main-content">
-
-            {/* Favorite Films */}
-            <div className="section-header">
-              <h2 className="section-title">Favorite Films</h2>
-            </div>
-            <div className="favorites-grid">
-              {favoriteFilms.map((poster, idx) => (
-                <div
-                  key={idx}
-                  className="film-poster"
-                  onClick={() => handleClick(`Favorite Film ${idx + 1}`)}
-                >
-                  <img src={poster} alt={`Favorite ${idx + 1}`} />
-                </div>
-              ))}
-            </div>
-
-            <div className="section-header">
-              <h2 className="section-title">Recent Activity</h2>
-              <a href="#" className="section-link">All</a>
-            </div>
-            <div className="activity-grid">
-              {recentActivity.map((item) => (
-                <div
-                  key={item.id}
-                  className="activity-poster"
-                  onClick={() => handleClick(item.title)}
-                >
-                  <img src={item.poster} alt={item.title} />
-                  {renderActivityStars(item.rating)}
-                </div>
-              ))}
-            </div>
-
             <div className="section-header">
               <h2 className="section-title">Recent Reviews</h2>
-              <a href="#" className="section-link">More</a>
+              {/* <span style={{fontSize:'0.8rem', color:'#666'}}>Last 4 activities</span> */}
             </div>
 
-            {recentReviews.map((review) => (
-              <div key={review.id} className="review-item">
-                <div className="review-poster">
-                  <img src={review.poster} alt={review.title} />
-                </div>
-                <div className="review-content">
-                  <h3>{review.title} <span>{review.year}</span></h3>
-                  <div className="review-meta">
-                    {renderStars(review.rating)}
-                    <span className="review-date">Watched {review.date}</span>
+            <div className="favorites-grid">
+              {userReviews.length > 0 ? (
+                userReviews.slice(0, 4).map((review) => (
+                  <div
+                    key={review.id}
+                    className="film-poster"
+                    title={`${review.game?.title} - ${review.rating}★`}
+                    onClick={() => navigate(`/game/${review.game?.id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <img
+                      src={getImageUrl(review.game?.cover_url)}
+                      alt={review.game?.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 5, right: 5,
+                      background: 'rgba(0,0,0,0.8)',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '2px',
+                      fontSize: '0.8rem',
+                      color: '#00e054'
+                    }}>
+                      ★ {review.rating}
+                    </div>
                   </div>
-                  <p className="review-text">{review.text}</p>
-                  <div className="review-likes">♥ {review.likes} {review.likes === 1 ? 'like' : 'likes'}</div>
-                </div>
-              </div>
-            ))}
-
-
-
-
-
-            {/* Following */}
-            <div className="section-header">
-              <h2 className="section-title">Following</h2>
-              <a href="#" className="section-link">{user.stats.following}</a>
-            </div>
-            <div className="following-grid">
-              {following.map((_, idx) => (
-                <div
-                  key={idx}
-                  className="following-avatar"
-                  onClick={() => handleClick(`Following ${idx + 1}`)}
-                />
-              ))}
+                ))
+              ) : (
+                <p style={{ color: '#666', gridColumn: '1 / -1' }}>Nenhum jogo avaliado ainda.</p>
+              )}
             </div>
           </div>
 
-          {/* Right Sidebar */}
           <aside className="sidebar">
-
-            {/* Bio */}
             <div className="bio-box">
               <div className="bio-title">BIO</div>
-              <p className="bio-text">"Some sort of pressure must exist; the artist exists because the world is not perfect. Art would be useless if the world were perfect, as man wouldn't look for harmony but would simply live in it. Art is born out of an ill-designed world." - Andrei Tarkovsky</p>
+              <p className="bio-text">{user.biography || "Sem biografia definida."}</p>
             </div>
-
-            {/* Watchlist */}
-            <div className="section-header">
-              <h2 className="section-title">Watchlist</h2>
-            </div>
-            <div className="watchlist-grid">
-              {watchlist.map((url, idx) => (
-                <div
-                  key={idx}
-                  className="film-poster"
-                  onClick={() => handleClick(`Watchlist ${idx + 1}`)}
-                >
-                  <img src={url} alt={`Watchlist ${idx + 1}`} />
-                </div>
-              ))}
-            </div>
-
-            {/* Diary */}
-
-
-            {/* Ratings Chart */}
-            <div className="section-header">
-              <h2 className="section-title">Ratings</h2>
-              <a href="#" className="section-link">See all</a>
-            </div>
-            <div className="ratings-chart">
-              <div className="chart-bars">
-                <div className="bar" style={{ height: '10%' }}></div>
-                <div className="bar" style={{ height: '15%' }}></div>
-                <div className="bar" style={{ height: '25%' }}></div>
-                <div className="bar" style={{ height: '35%' }}></div>
-                <div className="bar" style={{ height: '55%' }}></div>
-                <div className="bar" style={{ height: '75%' }}></div>
-                <div className="bar" style={{ height: '90%' }}></div>
-                <div className="bar" style={{ height: '100%' }}></div>
-                <div className="bar" style={{ height: '85%' }}></div>
-                <div className="bar" style={{ height: '60%' }}></div>
-              </div>
-            </div>
-
-
           </aside>
         </div>
       </div>
+
+      {isEditModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Edit Profile</h3>
+              <button className="close-modal-btn" onClick={() => setIsEditModalOpen(false)}>×</button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="modal-form">
+              <div className="modal-avatar-section">
+                <img src={editAvatarPreview} alt="Preview" className="avatar-preview" />
+                <label htmlFor="modal-avatar-upload" className="modal-upload-btn">
+                  Change Photo
+                </label>
+                <input id="modal-avatar-upload" type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+              </div>
+
+              <div className="input-group">
+                <label>Display Name</label>
+                <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} required />
+              </div>
+
+              <div className="input-group">
+                <label>Biography</label>
+                <textarea rows="4" value={editBio} onChange={(e) => setEditBio(e.target.value)} placeholder="Tell us about your favorite games..." />
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+                <button type="submit" className="save-btn" disabled={isSaving}>
+                  {isSaving ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

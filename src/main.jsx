@@ -1,53 +1,94 @@
 import React, { useState } from "react";
-import ReactDOM from "react-dom/client";
-import MainPage from "./mainpage";
+import ReactDOM from "react-dom/client"; 
+import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate } from "react-router-dom"; // Adicionei useParams e useNavigate
+
+// Importe suas páginas
+import MainPage from "./mainpage"; 
 import LoginPage from "./loginPage";
 import ProfilePage from "./ProfilePage";
+import GamePage from "./GamePage"; 
+import GamesScreen from "./jogos";
+
+const ProfileWrapper = () => {
+    const { id } = useParams(); // Pega o ID da URL
+    const navigate = useNavigate();
+    
+    return (
+        <ProfilePage 
+            viewingUserId={id} 
+            goToMain={() => navigate('/')} 
+        />
+    );
+};
+
+const ReviewsWrapper = () => {
+    const { id } = useParams(); 
+    const navigate = useNavigate();
+    // Passamos a prop showAllReviews={true}
+    return <ProfilePage viewingUserId={id} showAllReviews={true} goToMain={() => navigate('/')} />;
+};
 
 function App() {
-    const [logado, setLogado] = useState(false);
-    const [page, setPage] = useState("main"); // main | profile
+    const [logado, setLogado] = useState(() => {
+        return localStorage.getItem('token') ? true : false;
+    });
 
+    const handleLogin = () => {
+        setLogado(true);
+    };
+
+    // Se NÃO estiver logado, mostra o Login
     if (!logado) {
-        return <LoginPage onLogin={() => setLogado(true)} />;
+        return <LoginPage onLogin={handleLogin} />;
     }
 
-    if (page === "profile") {
-        return <ProfilePage goToMain={() => setPage("main")} />;
-    }
+    // Se ESTIVER logado, carrega o sistema de Rotas
+    return (
+        <BrowserRouter>
+            <Routes>
+                {/* Rota da Home */}
+                <Route 
+                    path="/" 
+                    element={<MainPage goToMain={() => {}} />} 
+                />
 
-    return <MainPage 
-        goToProfile={() => setPage("profile")}
-        goToMain={() => setPage("main")}
-    />;
+                {/* 1. Rota do MEU Perfil (sem ID) */}
+                <Route 
+                    path="/profile" 
+                    element={<ProfilePage goToMain={() => window.location.href='/'} />} 
+                />
+
+                {/* 2. Rota do Perfil de OUTROS (com ID) 
+                    Usamos o Wrapper aqui para processar o ID antes de chamar a página */}
+                <Route 
+                    path="/profile/:id" 
+                    element={<ProfileWrapper />} 
+                />
+
+                {/* Rota do Jogo */}
+                <Route 
+                    path="/game/:id" 
+                    element={<GamePage />} 
+                />
+
+                <Route path="/games/:id" element={<GamesScreen />} />
+                <Route path="/games" element={<GamesScreen />} />
+
+                {/* Se digitar url errada, volta pra home */}
+                <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+export default App;
+
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
     <React.StrictMode>
-        <App />
+      <App />
     </React.StrictMode>
-);
-
-// import React, { useState } from "react";
-// import ReactDOM from "react-dom/client";
-// import ProfilePage from "./ProfilePage";
-// import MainPage from "./mainpage";
-
-// function App() {
-//     const [page, setPage] = useState("profile"); 
-//     // pode começar como "main" ou "profile"
-
-//     if (page === "profile") {
-//         return <ProfilePage goToMain={() => setPage("main")} />;
-//     }
-
-//     if (page === "main") {
-//         return <MainPage goToProfile={() => setPage("profile")} />;
-//     }
-// }
-
-// ReactDOM.createRoot(document.getElementById("root")).render(
-//     <React.StrictMode>
-//         <App />
-//     </React.StrictMode>
-// );
+  );
+}
