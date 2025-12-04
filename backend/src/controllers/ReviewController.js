@@ -104,5 +104,19 @@ module.exports = {
     await review.destroy();
 
     return res.status(204).send(); 
-  }
+  },
+
+  async indexByUser(req, res) {
+  const { user_id } = req.params;
+  
+  const reviews = await Review.findAll({
+    where: { user_id },
+    include: [
+      { association: 'game', attributes: ['id', 'title', 'cover_url', 'release_date'] }
+    ],
+    order: [['created_at', 'DESC']] // Do mais recente para o mais antigo
+  });
+
+  return res.json(reviews);
+}
 };

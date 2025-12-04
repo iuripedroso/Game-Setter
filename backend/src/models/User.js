@@ -28,18 +28,21 @@ class User extends Model {
   }
 
   static associate(models) {
+    // Quem eu sigo (Minha lista de 'following')
     this.belongsToMany(models.User, {
-      foreignKey: 'follower_id', 
-      as: 'following',          
-      through: 'user_follows',   
-    });
-
-    this.belongsToMany(models.User, {
-      foreignKey: 'following_id', 
-      as: 'followers',            
+      foreignKey: 'follower_id', // Eu sou o seguidor
+      otherKey: 'following_id',  // O outro é quem eu estou seguindo
+      as: 'following',
       through: 'user_follows',
     });
 
+    // Quem me segue (Minha lista de 'followers')
+    this.belongsToMany(models.User, {
+      foreignKey: 'following_id', // Eu sou quem está sendo seguido
+      otherKey: 'follower_id',    // O outro é o seguidor
+      as: 'followers',
+      through: 'user_follows',
+    });
   }
 
   checkPassword(password) {

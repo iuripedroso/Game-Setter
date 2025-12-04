@@ -155,7 +155,6 @@ const GamePage = () => {
     );
   };
 
-  // 👇 ATUALIZADO: Apenas estrelas, sem dropdown 👇
   const renderInteractiveStars = () => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -165,7 +164,7 @@ const GamePage = () => {
       stars.push(
         <Star 
           key={i} 
-          size={36} // Aumentei um pouco para facilitar o clique
+          size={36} 
           className="modal-star"
           fill={isFilled ? "#00e054" : "#2c3440"} 
           color={isFilled ? "#00e054" : "#678"}
@@ -179,12 +178,18 @@ const GamePage = () => {
     return (
         <div style={{display:'flex', alignItems:'center'}}>
             {stars}
-            {/* Indicador numérico opcional ao lado para confirmar a nota */}
             <span style={{marginLeft: 15, fontSize: '1.2rem', fontWeight: 'bold', color: newRating > 0 ? '#00e054' : '#666'}}>
                 {newRating > 0 ? newRating : ''}
             </span>
         </div>
     );
+  };
+
+  // Handler para navegar ao perfil
+  const handleUserClick = (userId) => {
+    if (userId) {
+      navigate(`/profile/${userId}`);
+    }
   };
 
   if (loading) return <div className="game-page-loading"><h2>Carregando...</h2></div>;
@@ -257,9 +262,24 @@ const GamePage = () => {
             {reviews.length > 0 ? (
                 reviews.map((review) => (
                 <div className="review-item" key={review.id}>
-                    <img src={getAvatarUrl(review.user)} alt="User Avatar" className="avatar" />
+                    {/* AVATAR CLICÁVEL */}
+                    <img 
+                        src={getAvatarUrl(review.user)} 
+                        alt="User Avatar" 
+                        className="avatar" 
+                        onClick={() => handleUserClick(review.user?.id)}
+                        style={{ cursor: 'pointer', transition: 'opacity 0.2s' }}
+                        onMouseOver={(e) => e.target.style.opacity = '0.8'}
+                        onMouseOut={(e) => e.target.style.opacity = '1'}
+                    />
+                    
                     <div className="review-content">
-                    <h4>
+                    {/* NOME CLICÁVEL */}
+                    <h4 
+                        onClick={() => handleUserClick(review.user?.id)}
+                        style={{ cursor: 'pointer', width: 'fit-content' }}
+                        className="review-username-link" // Opcional para CSS hover extra
+                    >
                         {review.user?.name || "Unknown"} 
                         <span className="star-rating" style={{marginLeft: 10, color: '#00e054', fontSize: '1rem'}}>
                             {renderStars(review.rating)}

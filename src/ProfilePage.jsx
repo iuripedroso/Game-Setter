@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // 1. Importar useNavigate
+import { Star, UserPlus, UserCheck } from 'lucide-react'; 
 import './ProfilePage.css';
 
 const api = axios.create({
@@ -8,34 +10,77 @@ const api = axios.create({
 
 const FILE_URL = 'http://localhost:3001/files';
 
-const ProfilePage = ({ goToMain }) => {
+const ProfilePage = ({ goToMain, viewingUserId = null }) => {
+  const navigate = useNavigate(); // 2. Inicializar o hook
+  
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ films: 0, following: 0, followers: 0 });
+  const [userReviews, setUserReviews] = useState([]); 
 
-  // --- NOVO: Estados para o Modal de Edição ---
+  const [isOwnProfile, setIsOwnProfile] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  // Estados do Modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editName, setEditName] = useState('');
   const [editBio, setEditBio] = useState('');
   const [editAvatarFile, setEditAvatarFile] = useState(null);
   const [editAvatarPreview, setEditAvatarPreview] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  // -------------------------------------------
 
   const token = localStorage.getItem('token');
+
+  const getImageUrl = (url) => {
+    if (!url) return 'https://placehold.co/150x225?text=No+Cover';
+    if (url.startsWith('http')) return url;
+    return `${FILE_URL}/${url}`;
+  };
+
+  const checkFollowStatus = async (targetId) => {
+    try {
+      const response = await api.get('/users/me/following');
+      const myFollowingList = response.data;
+      const amIFollowing = myFollowingList.some(u => u.id === targetId);
+      setIsFollowing(amIFollowing);
+    } catch (error) {
+      console.error("Erro ao verificar follow status:", error);
+    }
+  };
 
   const fetchUserData = async () => {
     try {
       if (!token) return;
       api.defaults.headers.Authorization = `Bearer ${token}`;
 
-      const response = await api.get('/users/me');
-      const userData = response.data;
+      const meResponse = await api.get('/users/me');
+      const myId = meResponse.data.id;
+
+      const targetProfileId = viewingUserId && viewingUserId !== myId ? viewingUserId : myId;
+      const isMyProfile = targetProfileId === myId;
+      setIsOwnProfile(isMyProfile);
+
+      if (!isMyProfile) {
+        await checkFollowStatus(targetProfileId);
+      }
+
+      let userData;
+      if (isMyProfile) {
+        userData = meResponse.data;
+      } else {
+        const userRes = await api.get(`/users/${targetProfileId}`);
+        userData = userRes.data;
+      }
 
       const followersReq = api.get(`/users/${userData.id}/followers`);
       const followingReq = api.get(`/users/${userData.id}/following`);
+      const reviewsReq = api.get(`/reviews/user/${userData.id}`);
       
-      const [followersRes, followingRes] = await Promise.all([followersReq, followingReq]);
+      const [followersRes, followingRes, reviewsRes] = await Promise.all([
+          followersReq, 
+          followingReq,
+          reviewsReq
+      ]);
 
       setUser({
         ...userData,
@@ -43,8 +88,11 @@ const ProfilePage = ({ goToMain }) => {
           ? `${FILE_URL}/${userData.avatar}` 
           : `https://ui-avatars.com/api/?name=${userData.name}&background=random&color=fff`
       });
+
+      setUserReviews(reviewsRes.data);
+
       setStats({
-        films: 0,
+        films: reviewsRes.data.length || 0,
         followers: followersRes.data.length || 0,
         following: followingRes.data.length || 0
       });
@@ -58,37 +106,46 @@ const ProfilePage = ({ goToMain }) => {
 
   useEffect(() => {
     fetchUserData();
-  }, [token]);
+  }, [token, viewingUserId]);
 
-  // --- NOVO: Funções do Modal ---
+  const handleFollowToggle = async () => {
+    if (!user) return;
+    try {
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+      await api.post(`/users/${user.id}/follow`);
+      setIsFollowing(!isFollowing);
+      setStats(prev => ({
+        ...prev,
+        followers: !isFollowing ? prev.followers + 1 : prev.followers - 1
+      }));
+    } catch (error) {
+      console.error("Erro ao seguir:", error);
+      alert("Erro ao realizar ação.");
+    }
+  };
 
-  // Abre o modal e preenche com os dados atuais
   const openEditModal = () => {
     setEditName(user.name);
     setEditBio(user.biography || '');
     setEditAvatarFile(null);
-    setEditAvatarPreview(user.avatarUrl); // Começa com a foto atual
+    setEditAvatarPreview(user.avatarUrl); 
     setIsEditModalOpen(true);
   };
 
-  // Lida com a seleção de nova foto (apenas preview, não envia ainda)
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setEditAvatarFile(file);
-      setEditAvatarPreview(URL.createObjectURL(file)); // Cria URL temporária pra mostrar na hora
+      setEditAvatarPreview(URL.createObjectURL(file)); 
     }
   };
 
-  // Salva tudo (Foto e Texto)
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     setIsSaving(true);
-
     try {
       api.defaults.headers.Authorization = `Bearer ${token}`;
 
-      // 1. Se tiver foto nova, faz upload (PATCH /avatar)
       if (editAvatarFile) {
         const formData = new FormData();
         formData.append('avatar', editAvatarFile);
@@ -97,9 +154,6 @@ const ProfilePage = ({ goToMain }) => {
         });
       }
 
-      // 2. Atualiza Nome e Bio (PUT /users)
-      // OBS: Você precisa ter a rota PUT /users no backend para isso funcionar.
-      // Se não tiver, veja o passo 3 da minha resposta.
       await api.put('/users', {
         name: editName,
         biography: editBio,
@@ -107,7 +161,7 @@ const ProfilePage = ({ goToMain }) => {
 
       alert("Perfil atualizado com sucesso!");
       setIsEditModalOpen(false);
-      fetchUserData(); // Recarrega os dados da tela principal
+      fetchUserData(); 
 
     } catch (error) {
       console.error("Erro ao salvar:", error);
@@ -116,15 +170,6 @@ const ProfilePage = ({ goToMain }) => {
       setIsSaving(false);
     }
   };
-  // -----------------------------
-
-
-  const favoriteFilms = [
-    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/k079fR84R59TiwHw6F4J3tX4i9.jpg",
-    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/pThyQovXQrw2m0s9x827XMiUAft.jpg",
-    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/3b8Wsk1v5Le4644l5Qy7p0B6C.jpg",
-    "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/yLsuTi2q966zCjJdsZ9jCgH.jpg"
-  ];
 
   if (loading) return <div className="profile-page-container"><h2>Carregando...</h2></div>;
   if (!user) return <div className="profile-page-container"><h2>Usuário não encontrado.</h2></div>;
@@ -133,7 +178,12 @@ const ProfilePage = ({ goToMain }) => {
     <div className="profile-page-container">
       <div className="content-wrapper">
           <header className="profile-header">
-          <a href="#" className="profile-logo" onClick={(e) => { e.preventDefault(); if (goToMain) goToMain(); }}>
+          {/* Se clicar no logo, usa a função goToMain ou navigate */}
+          <a href="#" className="profile-logo" onClick={(e) => { 
+              e.preventDefault(); 
+              if (goToMain) goToMain(); 
+              else navigate('/main'); // Fallback para navigate se goToMain não existir
+          }}>
             <div className="profile-logo-pontos"><span></span><span></span><span></span></div>
           </a>
           <span className="profile-logo">Gamesetter</span>
@@ -148,8 +198,43 @@ const ProfilePage = ({ goToMain }) => {
           <div className="profile-main">
             <div className="profile-header-top">
               <h1 className="username">{user.name}</h1>
-              {/* Botão abre o Modal agora */}
-              <button className="edit-profile-btn" onClick={openEditModal}>Edit Profile</button>
+              
+              {isOwnProfile ? (
+                <button className="edit-profile-btn" onClick={openEditModal}>
+                  Edit Profile
+                </button>
+              ) : (
+                <button 
+                  className={`edit-profile-btn ${isFollowing ? 'following-btn' : 'follow-btn'}`} 
+                  onClick={handleFollowToggle}
+                  style={{
+                    backgroundColor: isFollowing ? '#2c3440' : '#00e054',
+                    color: '#fff',
+                    border: isFollowing ? '1px solid #445566' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    if(isFollowing) {
+                        e.currentTarget.textContent = "Unfollow";
+                        e.currentTarget.style.backgroundColor = "#ff4d4d";
+                        e.currentTarget.style.borderColor = "#ff4d4d";
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if(isFollowing) {
+                        e.currentTarget.innerHTML = "Following"; 
+                        e.currentTarget.style.backgroundColor = "#2c3440";
+                        e.currentTarget.style.borderColor = "#445566";
+                    }
+                  }}
+                >
+                  {isFollowing ? <>Following</> : <>Follow</>}
+                </button>
+              )}
+
             </div>
             <div className="user-info">
               <span>★ Brasil</span> 
@@ -173,16 +258,46 @@ const ProfilePage = ({ goToMain }) => {
         <div className="main-grid">
           <div className="main-content">
             <div className="section-header">
-              <h2 className="section-title">Favorites</h2>
+              <h2 className="section-title">Recent Reviews</h2>
+              <span style={{fontSize:'0.8rem', color:'#666'}}>Last 4 activities</span>
             </div>
+            
             <div className="favorites-grid">
-              {favoriteFilms.map((poster, idx) => (
-                <div key={idx} className="film-poster">
-                  <img src={poster} alt={`Favorite ${idx + 1}`} />
-                </div>
-              ))}
+              {userReviews.length > 0 ? (
+                  userReviews.slice(0, 4).map((review) => (
+                    // 3. Tornando o card clicável e adicionando estilo de ponteiro
+                    <div 
+                        key={review.id} 
+                        className="film-poster" 
+                        title={`${review.game?.title} - ${review.rating}★`}
+                        onClick={() => navigate(`/game/${review.game?.id}`)} 
+                        style={{ cursor: 'pointer' }} 
+                    >
+                      <img 
+                        src={getImageUrl(review.game?.cover_url)} 
+                        alt={review.game?.title} 
+                        style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'4px'}}
+                      />
+                      <div style={{
+                          position: 'absolute', 
+                          bottom: 5, right: 5, 
+                          background: 'rgba(0,0,0,0.8)', 
+                          padding: '2px 6px', 
+                          borderRadius: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '2px',
+                          fontSize: '0.8rem',
+                          color: '#00e054'
+                      }}>
+                          ★ {review.rating}
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                  <p style={{color: '#666', gridColumn: '1 / -1'}}>Nenhum jogo avaliado ainda.</p>
+              )}
             </div>
-            <p style={{color: '#666', marginTop: 20}}>* Histórico requer endpoints.</p>
           </div>
 
           <aside className="sidebar">
@@ -194,7 +309,6 @@ const ProfilePage = ({ goToMain }) => {
         </div>
       </div>
 
-      {/* --- NOVO: ESTRUTURA DO MODAL --- */}
       {isEditModalOpen && (
         <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -204,46 +318,26 @@ const ProfilePage = ({ goToMain }) => {
             </div>
             
             <form onSubmit={handleSaveProfile} className="modal-form">
-              
-              {/* Upload de Avatar no Modal */}
               <div className="modal-avatar-section">
                 <img src={editAvatarPreview} alt="Preview" className="avatar-preview" />
                 <label htmlFor="modal-avatar-upload" className="modal-upload-btn">
                   Change Photo
                 </label>
-                <input 
-                  id="modal-avatar-upload" 
-                  type="file" 
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  style={{display: 'none'}}
-                />
+                <input id="modal-avatar-upload" type="file" accept="image/*" onChange={handleFileChange} style={{display: 'none'}} />
               </div>
 
               <div className="input-group">
                 <label>Display Name</label>
-                <input 
-                  type="text" 
-                  value={editName} 
-                  onChange={(e) => setEditName(e.target.value)}
-                  required 
-                />
+                <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} required />
               </div>
 
               <div className="input-group">
                 <label>Biography</label>
-                <textarea 
-                  rows="4"
-                  value={editBio} 
-                  onChange={(e) => setEditBio(e.target.value)}
-                  placeholder="Tell us about your favorite games..."
-                />
+                <textarea rows="4" value={editBio} onChange={(e) => setEditBio(e.target.value)} placeholder="Tell us about your favorite games..."/>
               </div>
 
               <div className="modal-actions">
-                <button type="button" className="cancel-btn" onClick={() => setIsEditModalOpen(false)}>
-                  Cancel
-                </button>
+                <button type="button" className="cancel-btn" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
                 <button type="submit" className="save-btn" disabled={isSaving}>
                   {isSaving ? "Saving..." : "Save Changes"}
                 </button>
@@ -252,8 +346,6 @@ const ProfilePage = ({ goToMain }) => {
           </div>
         </div>
       )}
-      {/* ------------------------------- */}
-
     </div>
   );
 };

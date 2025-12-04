@@ -1,15 +1,29 @@
-import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom/client"; // Se for Vite moderno, isso fica no main.jsx, mas se estiver aqui, pode manter
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState } from "react";
+import ReactDOM from "react-dom/client"; 
+import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate } from "react-router-dom"; // Adicionei useParams e useNavigate
 
 // Importe suas páginas
-import MainPage from "./mainpage"; // Verifique se o nome do arquivo é mainpage ou MainPage
+import MainPage from "./mainpage"; 
 import LoginPage from "./loginPage";
 import ProfilePage from "./ProfilePage";
-import GamePage from "./GamePage"; // Ajuste o caminho conforme onde vc salvou o GamePage
+import GamePage from "./GamePage"; 
+
+// --- Componente Wrapper para o Perfil ---
+// Esse componente serve para pegar o ID da URL (/profile/123) 
+// e passar como prop (viewingUserId) para o ProfilePage
+const ProfileWrapper = () => {
+    const { id } = useParams(); // Pega o ID da URL
+    const navigate = useNavigate();
+    
+    return (
+        <ProfilePage 
+            viewingUserId={id} 
+            goToMain={() => navigate('/')} 
+        />
+    );
+};
 
 function App() {
-    // Tenta recuperar se o usuário já estava logado antes (opcional, mas bom)
     const [logado, setLogado] = useState(() => {
         return localStorage.getItem('token') ? true : false;
     });
@@ -18,14 +32,7 @@ function App() {
         setLogado(true);
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setLogado(false);
-    };
-
     // Se NÃO estiver logado, mostra o Login
-    // (Poderíamos usar rotas protegidas, mas assim é mais simples por enquanto)
     if (!logado) {
         return <LoginPage onLogin={handleLogin} />;
     }
@@ -37,16 +44,23 @@ function App() {
                 {/* Rota da Home */}
                 <Route 
                     path="/" 
-                    element={<MainPage goToProfile={() => {}} goToMain={() => {}} />} 
+                    element={<MainPage goToMain={() => {}} />} 
                 />
 
-                {/* Rota do Perfil */}
+                {/* 1. Rota do MEU Perfil (sem ID) */}
                 <Route 
                     path="/profile" 
-                    element={<ProfilePage goToMain={() => {}} />} 
+                    element={<ProfilePage goToMain={() => window.location.href='/'} />} 
                 />
 
-                {/* 👇 ROTA NOVA: Jogo Específico (O :id pega o numero do jogo) */}
+                {/* 2. Rota do Perfil de OUTROS (com ID) 
+                    Usamos o Wrapper aqui para processar o ID antes de chamar a página */}
+                <Route 
+                    path="/profile/:id" 
+                    element={<ProfileWrapper />} 
+                />
+
+                {/* Rota do Jogo */}
                 <Route 
                     path="/game/:id" 
                     element={<GamePage />} 
@@ -61,6 +75,7 @@ function App() {
 
 export default App;
 
+// Renderização (se for create-react-app padrão)
 const rootElement = document.getElementById("root");
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);

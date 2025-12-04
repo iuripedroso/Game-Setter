@@ -14,4 +14,6 @@ reviewRouter.put('/:id', authMiddleware, validateId, ReviewController.update);
 
 reviewRouter.delete('/:id', authMiddleware, validateId, ReviewController.delete);
 
+reviewRouter.get('/user/:user_id', ReviewController.indexByUser);
+
 module.exports = reviewRouter;
