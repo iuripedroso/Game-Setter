@@ -16,7 +16,10 @@ function App() {
         return <ProfilePage goToMain={() => setPage("main")} />;
     }
 
-    return <MainPage goToProfile={() => setPage("profile")} />;
+    return <MainPage 
+        goToProfile={() => setPage("profile")}
+        goToMain={() => setPage("main")}
+    />;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -24,3 +27,27 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <App />
     </React.StrictMode>
 );
+
+// import React, { useState } from "react";
+// import ReactDOM from "react-dom/client";
+// import ProfilePage from "./ProfilePage";
+// import MainPage from "./mainpage";
+
+// function App() {
+//     const [page, setPage] = useState("profile"); 
+//     // pode começar como "main" ou "profile"
+
+//     if (page === "profile") {
+//         return <ProfilePage goToMain={() => setPage("main")} />;
+//     }
+
+//     if (page === "main") {
+//         return <MainPage goToProfile={() => setPage("profile")} />;
+//     }
+// }
+
+// ReactDOM.createRoot(document.getElementById("root")).render(
+//     <React.StrictMode>
+//         <App />
+//     </React.StrictMode>
+// );

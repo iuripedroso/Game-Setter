@@ -3,7 +3,7 @@ import "./style.css";
 import VideoFile from "./assets/video.mp4";
 import reviewsData from "./data/userReviews.json";
 
-function MainPage({ goToProfile }) {
+function MainPage({ goToProfile, goToMain}) {
 
     useEffect(() => {
         function shuffleStep(word) {
@@ -69,7 +69,22 @@ function MainPage({ goToProfile }) {
                 <video className="background-video" src={VideoFile} autoPlay loop muted />
 
                 <header className="overlay-header">
-                    <h1>GameSetter</h1>
+                    <a
+                        href="#"
+                        className="logo"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            goToMain(); 
+                        }}
+                    >
+                        <div className="logo-pontos">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+
+                        </div>
+                    </a>
+                    <span className="logo">Gamesetter</span>
 
                     <nav className="itens">
                         <a href="#" className="c-header-menu">
