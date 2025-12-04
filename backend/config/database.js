@@ -14,7 +14,7 @@ module.exports = {
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false, // Necessário para aceitar o certificado do Supabase
+      rejectUnauthorized: false,
     },
   },
 };

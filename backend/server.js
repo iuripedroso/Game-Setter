@@ -10,12 +10,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use(routes); // <--- Usa na raiz, sem prefixo extra
+app.use(routes); 
 
 app.use('/files', express.static(uploadConfig.directory));
 
 app.use((err, req, res, next) => {
-  // Se for um erro que a gente conhece (AppError)
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       status: 'error',
@@ -23,8 +22,7 @@ app.use((err, req, res, next) => {
     });
   }
 
-  // Se for um erro desconhecido (bug, banco fora do ar, código errado)
-  console.error(err); // Imprime no terminal pra gente arrumar
+  console.error(err); 
 
   return res.status(500).json({
     status: 'error',
@@ -34,5 +32,5 @@ app.use((err, req, res, next) => {
 
 const PORT = 3001;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });

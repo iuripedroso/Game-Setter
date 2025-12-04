@@ -18,7 +18,7 @@ module.exports = {
       },
       password_hash: {
         type: Sequelize.STRING,
-        allowNull: true, // Lembra que colocamos true no Model?
+        allowNull: true, 
       },
       biography: {
         type: Sequelize.TEXT,

@@ -6,13 +6,11 @@ const reviewRouter = require('./review.routes');
 
 const routes = express.Router();
 
-// Definimos os prefixos aqui!
 routes.use('/users', userRouter); 
 routes.use('/sessions', sessionRouter);
 routes.use('/games',gameRouter);
 routes.use('/reviews', reviewRouter);
 
-// Rota de teste global
 routes.get('/', (req, res) => {
     res.json({ message: 'Game Setter API Online ' });
 });

@@ -1,13 +1,17 @@
 const express = require('express');
 const ReviewController = require('../controllers/ReviewController');
 const authMiddleware = require('../middlewares/auth');
+const optionalAuth = require('../middlewares/optionalAuth');
+const validateId = require('../middlewares/validateId');
 
 const reviewRouter = express.Router();
 
-// POST: Precisa estar logado para avaliar
-reviewRouter.post('/games/:game_id', authMiddleware, ReviewController.store);
+reviewRouter.post('/games/:game_id', authMiddleware,validateId, ReviewController.store);
 
-// GET: Qualquer um pode ver as avaliações
-reviewRouter.get('/games/:game_id', ReviewController.index);
+reviewRouter.get('/games/:game_id',optionalAuth,validateId, ReviewController.index);
+
+reviewRouter.put('/:id', authMiddleware, validateId, ReviewController.update);
+
+reviewRouter.delete('/:id', authMiddleware, validateId, ReviewController.delete);
 
 module.exports = reviewRouter;
