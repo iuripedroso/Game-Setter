@@ -24,7 +24,6 @@ function MainPage({ goToProfile, goToMain }) {
     };
 
     useEffect(() => {
-        // --- Animação do Menu ---
         function shuffleStep(word) {
             let arr = word.split('');
             if (arr.length > 3) {
@@ -63,11 +62,12 @@ function MainPage({ goToProfile, goToMain }) {
                 const response = await api.get('/games');
                 const allGames = response.data;
                 const shuffledGames = allGames.sort(() => 0.5 - Math.random());
-                setPopularGames(shuffledGames.slice(0, 5));
+                setPopularGames(shuffledGames.slice(0, 30)); // agora são 30 jogos
             } catch (error) {
                 console.error("Erro ao buscar jogos populares:", error);
             }
         }
+
 
         fetchGames();
 
@@ -95,27 +95,32 @@ function MainPage({ goToProfile, goToMain }) {
                 <video className="background-video" src={VideoFile} autoPlay loop muted />
 
                 <header className="overlay-header">
-                    <a href="#" className="main-logo" onClick={(e) => {e.preventDefault(); if(goToMain) goToMain();}}>
+                    <a href="#" className="main-logo" onClick={(e) => { e.preventDefault(); if (goToMain) goToMain(); }}>
                         <div className="logo-pontos"><span></span><span></span><span></span></div>
                     </a>
                     <span className="main-logo">Gamesetter</span>
 
                     <nav className="itens">
-                        <a href="#" className="c-header-menu"><span>I</span><span>n</span><span>í</span><span>c</span><span>i</span><span>o</span></a>
-                        <a href="#" className="c-header-menu"><span>J</span><span>o</span><span>g</span><span>o</span><span>s</span></a>
-                        <a href="#" className="c-header-menu"><span>S</span><span>o</span><span>b</span><span>r</span><span>e</span></a>
-                        
-                        <button className="c-header-menu" style={{ background: "none", border: "none", cursor: "pointer" }} onClick={() => navigate('/profile')}>
-                            <span>P</span><span>e</span><span>r</span><span>f</span><span>i</span><span>l</span>
+
+                        <button className="c-header-menu" style={{ background: "none", border: "none", cursor: "pointer" }} onClick={() => navigate('/main')}>
+                            <span>H</span><span>o</span><span>m</span><span>e</span>
                         </button>
 
-                        {/* 👇 BOTÃO SAIR NOVO 👇 */}
-                        <button 
-                            className="c-header-menu" 
-                            style={{ background: "none", border: "none", cursor: "pointer", marginLeft: "15px", color: "#ff4444" }} 
+
+                        <button className="c-header-menu" style={{ background: "none", border: "none", cursor: "pointer" }} onClick={() => navigate('/games')}>
+                            <span>G</span><span>a</span><span>m</span><span>e</span><span>s</span>
+                        </button>
+
+
+
+                        <button className="c-header-menu" style={{ background: "none", border: "none", cursor: "pointer" }} onClick={() => navigate('/profile')}>
+                            <span>P</span><span>r</span><span>o</span><span>f</span><span>i</span><span>l</span><span>e</span>
+                        </button>
+
+                        <button className="c-header-menu" style={{ background: "none", border: "none", cursor: "pointer" }}
                             onClick={handleLogout}
                         >
-                            <span>S</span><span>a</span><span>i</span><span>r</span>
+                            <span>E</span><span>x</span><span>i</span><span>t</span>
                         </button>
                     </nav>
                 </header>
@@ -132,49 +137,28 @@ function MainPage({ goToProfile, goToMain }) {
                 </div>
             </div>
 
-            <div className="popularh2"><h2>popular releases</h2></div>
-            
-            <div className="popular">
-                {popularGames.length > 0 ? (
-                    popularGames.map((game) => (
-                        <div 
-                            key={game.id} 
-                            className="popular-card" 
-                            style={{ backgroundImage: `url(${getCoverUrl(game.cover_url)})` }}
-                            title={game.title}
-                            onClick={() => navigate(`/game/${game.id}`)} 
-                        >
-                        </div>
-                    ))
-                ) : (
-                    <p style={{textAlign: 'center', width: '100%', color: '#999'}}>Carregando jogos...</p>
-                )}
-            </div>
-
             <div className="reviews-section">
                 <div className="reviews-header">
-                    <h2>Popular Reviews With Friends</h2>
-                    <a href="#">MORE</a>
+                    <h2>Popular Releases</h2>
+                    {/* <a href="#">MORE</a> */}
                 </div>
-                <div className="reviews-grid">
-                    {reviewsData.map((review) => (
-                        <div key={review.id} className={`review-card ${review.compact ? 'compact-review' : ''}`}>
-                            <div className="review-header-game">
-                                <img src={review.gamePoster} alt={review.gameTitle} className="game-poster" onError={(e) => (e.target.src = "https://placehold.co/50x75")}/>
-                                <div className="review-info">
-                                    <div className="rating-user">
-                                        <img src={review.userAvatar} alt={review.username} className="user-avatar" onError={(e) => (e.target.src = "https://placehold.co/25x25")}/>
-                                        <span className="user-info">{review.username}</span>
-                                        <StarRating rating={review.rating} />
-                                    </div>
-                                    <h3>{review.gameTitle}</h3>
-                                    <p>{review.gameYear}</p>
-                                </div>
+
+
+                <div className="popular">
+                    {popularGames.length > 0 ? (
+                        popularGames.map((game) => (
+                            <div
+                                key={game.id}
+                                className="popular-card"
+                                style={{ backgroundImage: `url(${getCoverUrl(game.cover_url)})` }}
+                                title={game.title}
+                                onClick={() => navigate(`/game/${game.id}`)}
+                            >
                             </div>
-                            <div className="review-text">{review.reviewText}</div>
-                            <div className="review-actions"><a href="#">❤️</a><span>{review.likes} likes</span></div>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        <p style={{ textAlign: 'center', width: '100%', color: '#999' }}>Carregando jogos...</p>
+                    )}
                 </div>
             </div>
 

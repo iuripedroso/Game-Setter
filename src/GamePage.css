@@ -173,7 +173,7 @@ body {
 .sidebar-link:hover { background-color: #2c3440; color: #fff; }
 
 /* Reviews */
-.reviews-section {
+.reviews-section-game {
   margin-top: 40px;
   border-top: 1px solid var(--border-color);
   padding-top: 20px;
@@ -188,11 +188,18 @@ body {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 5px;
 }
 
-.review-item { display: flex; gap: 15px; padding: 20px 0; border-bottom: 1px solid var(--border-color); }
+.a-header-menu{
+  margin-left: auto;
+  margin-right: 50px;
+  margin-top: 3px;
+}
+
+.review-item { display: flex; gap: 15px; padding: 20px 20px; border-bottom: 1px solid var(--border-color); }
 .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
 .review-content h4 { margin: 0 0 5px 0; font-size: 0.9rem; color: #fff; }
 .star-rating { color: var(--brand-green); font-size: 0.8rem; margin-left: 5px; }

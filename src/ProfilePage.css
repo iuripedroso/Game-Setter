@@ -10,13 +10,13 @@
 html, body, #root {
     margin: 0;
     padding: 0;
-    background: #14181c;
+    background: #1D242A;
     width: 100%;
     min-height: 100%;
 }
 
 :root {
-  --bg-body: #14181c;
+  --bg-body: #1D242A;
   --bg-header: #2c3440;
   --text-primary: #ffffff;
   --text-secondary: #9ab;
@@ -29,7 +29,7 @@ html, body, #root {
 }
 
 .profile-page-container {
-  background-color: var(--bg-body);
+  background-color: #1D242A;
   color: var(--text-secondary);
   font-family: 'TiemposTextWeb-Regular', Georgia, serif;
   min-height: 100vh;
@@ -192,6 +192,9 @@ html, body, #root {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  width: 100%;
+  padding: auto;
+  background-color: transparent;
 }
 
 .section-title {
@@ -455,11 +458,13 @@ html, body, #root {
 
     top: 0;
     width: 100%;
-    padding: 20px 40px 20px 0px;
+    padding: 20px 48px;
     color: white;
     display: flex;
     z-index: 2;
 
+
+    background-color: #14181C;
     /* border: solid 2px white; */
 }
 

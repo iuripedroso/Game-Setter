@@ -59,7 +59,7 @@ html {
     margin-left: 10px;
     margin-top: 0; 
     color: #fff;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -106,7 +106,7 @@ html {
 
     top: 0;
     width: 100%;
-    padding: 20px 40px 20px 27px;
+    padding: 15px 40px 20px 27px;
     color: white;
     display: flex;
     z-index: 2;
@@ -115,7 +115,7 @@ html {
 }
 
 .overlay-header h1 {
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 600;
     /* border: solid 2px white; */
 }
@@ -154,7 +154,7 @@ html {
 .content {
     z-index: 2;
     position: relative;
-    width: 60%;
+    width: 90%;
     height: auto;
     color: aliceblue;
     /* border: solid 2px white; */
@@ -189,14 +189,14 @@ html {
 .content-trailer {
     z-index: 2;
     position: relative;
-    width: 60%;
-    height: 30%;
+    width: 34%;
+    height: 16%;
     color: aliceblue;
     /* border: solid 2px white; */
     display: flex;
     align-items: center;
 
-    margin-top: 20px;
+    margin-top: 70px;
     text-transform: capitalize;
     /* padding-left: 30px; */
     /* margin-top: 30vh; */
@@ -230,18 +230,6 @@ html {
 
 /* Substitua as classes .popular01, .popular02, etc por isso: */
 
-.popular {
-    margin: auto;
-    min-height: 250px; 
-    width: 80%;
-    z-index: 2;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap; 
-    gap: 24px;
-    margin-bottom: 25px;
-    padding: 20px;
-}
 
 .popular-card {
     width: 166px;
@@ -264,19 +252,37 @@ html {
 }
 
 .reviews-section {
-    width: 80%;
+    width: 100%;
     margin: 80px auto;
+    align-items: center;
+
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    /* padding-top: 50px; */
     color: #111;
+
+    /* border: black  2px solid; */
 }
+
+.popular {
+    margin: auto;
+    height: 20%;
+    width: 80%;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; 
+    gap: 24px;
+    margin-bottom: 25px;
+    /* padding: 20px; */
+}
+
 
 .reviews-header {
     display: flex;
     justify-content: space-between;
-
-    width: 100%;
+    width: 80%;
+    margin-bottom: 30px;
 
     align-items: center;
     border-bottom: 2px solid #000;

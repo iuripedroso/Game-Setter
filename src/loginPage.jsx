@@ -12,7 +12,7 @@ function LoginPage({ onLogin }) {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [lembrar, setLembrar] = useState(false);
-    
+
     // Estados de UI
     const [showLoginBox, setShowLoginBox] = useState(false);
     const [showSignupBox, setShowSignupBox] = useState(false);
@@ -26,8 +26,8 @@ function LoginPage({ onLogin }) {
 
     // --- LÓGICA DE LOGIN (INTEGRADA) ---
     async function handleSubmit(e) {
-        if(e) e.preventDefault(); // Evita recarregar a página
-        
+        if (e) e.preventDefault(); // Evita recarregar a página
+
         if (!email || !senha) {
             alert("Preencha email e senha!");
             return;
@@ -52,7 +52,7 @@ function LoginPage({ onLogin }) {
             api.defaults.headers.Authorization = `Bearer ${token}`;
 
             // Avisa o App que logou
-            onLogin(); 
+            onLogin();
 
         } catch (error) {
             console.error(error);
@@ -64,7 +64,7 @@ function LoginPage({ onLogin }) {
 
     // --- LÓGICA DE CADASTRO (INTEGRADA) ---
     async function handleSignup(e) {
-        if(e) e.preventDefault();
+        if (e) e.preventDefault();
 
         if (!signupName || !signupEmail || !signupPassword || !confirmPassword) {
             alert("Preencha todos os campos!");
@@ -88,12 +88,12 @@ function LoginPage({ onLogin }) {
             });
 
             alert("Conta criada com sucesso! Faça login agora.");
-            
+
             // Troca as modais automaticamente
             setShowSignupBox(false);
             setShowLoginBox(true);
             // Preenche o email para facilitar
-            setEmail(signupEmail); 
+            setEmail(signupEmail);
             setSenha("");
 
         } catch (error) {
@@ -253,16 +253,17 @@ function LoginPage({ onLogin }) {
 
             <div className="login-content"></div>
             <footer className="footer">
-                 {/* O Footer manteve-se igual */}
+                {/* O Footer manteve-se igual */}
                 <div className="footer-container">
                     <div className="footer-about">
                         <h2>GameSetter</h2>
                         <p>Discover your next favorite game.</p>
                     </div>
                     {/* ... Resto do footer ... */}
-                    <div className="footer-bottom">
-                        <p>© 2025 GameSetter — All rights reserved.</p>
-                    </div>
+
+                </div>
+                <div className="footer-bottom">
+                    <p>© 2025 GameSetter — All rights reserved.</p>
                 </div>
             </footer>
         </div>
