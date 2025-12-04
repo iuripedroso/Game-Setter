@@ -310,7 +310,7 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
           <nav>
             <a href="#" className="active" onClick={(e) => e.preventDefault()}>Profile</a>
             {/* 👇 MUDANÇA AQUI: Redireciona para /games 👇 */}
-            <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/games/${user.id}`); }}>Games</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/games/${user.id}`); }}>Your Games</a>
           </nav>
         </div>
 
