@@ -1,18 +1,33 @@
-# React + Vite
+#  Game Setter
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Projeto Integrador desenvolvido para criar uma plataforma de avaliação de jogos (estilo Letterboxd).
 
-Currently, two official plugins are available:
+##  Tecnologias
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Front-end:** React + Vite
+- **Back-end:** Node.js + Express + Sequelize
+- **Banco de Dados:** PostgreSQL (Hospedado no Supabase)
+- **Uploads:** Multer (Armazenamento local)
 
-## React Compiler
+---
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+##  Como rodar o projeto
 
-Note: This will impact Vite dev & build performances.
+Siga os passos abaixo para configurar o ambiente na sua máquina.
 
-## Expanding the ESLint configuration
+### 1. Instalar dependências
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+O projeto é dividido em duas partes (raiz para o front e pasta backend). Você precisa instalar as bibliotecas em ambos.
+
+Abra o terminal na raiz do projeto e rode:
+
+```bash
+# 1. Instala as dependências do Front-end e ferramentas gerais
+npm install
+
+# 2. Entra na pasta do backend e instala as dependências da API
+cd backend
+npm install
+
+# 3. Volta para a raiz
+cd ..
