@@ -204,7 +204,6 @@ function LoginPage({ onLogin }) {
                                     type="text"
                                     value={signupName}
                                     onChange={(e) => setSignupName(e.target.value)}
-                                    placeholder="Your username"
                                     required
                                 />
                             </div>
