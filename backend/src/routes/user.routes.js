@@ -36,6 +36,7 @@ userRouter.get('/me', async (req, res) => {
   }
 });
 
+userRouter.get('/:id', authMiddleware, UserController.show);
 userRouter.patch('/avatar', upload.single('avatar'), UserAvatarController.update);
 
 userRouter.post('/:user_id/follow', authMiddleware,validateId, FollowController.toggleFollow);

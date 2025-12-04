@@ -19,6 +19,24 @@ module.exports = {
     return res.status(201).json(user);
   },
 
+  async show(req, res) {
+    try {
+      const { id } = req.params;
+
+      const user = await User.findByPk(id, {
+        attributes: { exclude: ['password_hash'] } // Segurança: não devolve a senha
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'Usuário não encontrado.' });
+      }
+
+      return res.json(user);
+    } catch (error) {
+      return res.status(400).json({ error: 'ID inválido ou erro na busca.' });
+    }
+  },
+
   async index(req, res) {
     const users = await User.findAll();
     return res.json(users);

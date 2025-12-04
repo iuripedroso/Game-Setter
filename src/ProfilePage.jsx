@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // 1. Importar useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import { Star, UserPlus, UserCheck } from 'lucide-react'; 
 import './ProfilePage.css';
 
@@ -11,7 +11,7 @@ const api = axios.create({
 const FILE_URL = 'http://localhost:3001/files';
 
 const ProfilePage = ({ goToMain, viewingUserId = null }) => {
-  const navigate = useNavigate(); // 2. Inicializar o hook
+  const navigate = useNavigate();
   
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,11 +37,14 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
     return `${FILE_URL}/${url}`;
   };
 
-  const checkFollowStatus = async (targetId) => {
+  // CORREÇÃO 1: Agora recebe o myId real para evitar erro 400 no backend
+  const checkFollowStatus = async (myCurrentId, targetProfileId) => {
     try {
-      const response = await api.get('/users/me/following');
+      // Usa o ID numérico/UUID em vez de 'me'
+      const response = await api.get(`/users/${myCurrentId}/following`);
       const myFollowingList = response.data;
-      const amIFollowing = myFollowingList.some(u => u.id === targetId);
+      
+      const amIFollowing = myFollowingList.some(u => u.id === targetProfileId);
       setIsFollowing(amIFollowing);
     } catch (error) {
       console.error("Erro ao verificar follow status:", error);
@@ -53,33 +56,54 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
       if (!token) return;
       api.defaults.headers.Authorization = `Bearer ${token}`;
 
-      const meResponse = await api.get('/users/me');
+      // 1. Quem sou eu? (Busca ID do logado)
+      let meResponse;
+      try {
+         meResponse = await api.get('/users/me');
+      } catch (err) {
+         console.error("Sessão inválida. Deslogando...");
+         localStorage.removeItem('token');
+         localStorage.removeItem('user');
+         window.location.reload(); 
+         return;
+      }
+
       const myId = meResponse.data.id;
 
-      const targetProfileId = viewingUserId && viewingUserId !== myId ? viewingUserId : myId;
+      // 2. Define qual perfil carregar
+      // Se viewingUserId for inválido ou igual a "undefined", assume que é o meu perfil
+      let targetProfileId = myId;
+      if (viewingUserId && viewingUserId !== 'undefined' && viewingUserId !== 'null') {
+          targetProfileId = viewingUserId;
+      }
+      
       const isMyProfile = targetProfileId === myId;
       setIsOwnProfile(isMyProfile);
 
-      if (!isMyProfile) {
-        await checkFollowStatus(targetProfileId);
-      }
-
+      // 3. Busca dados do usuário alvo
       let userData;
       if (isMyProfile) {
         userData = meResponse.data;
       } else {
-        const userRes = await api.get(`/users/${targetProfileId}`);
-        userData = userRes.data;
+        try {
+            const userRes = await api.get(`/users/${targetProfileId}`);
+            userData = userRes.data;
+            
+            // CORREÇÃO 1: Passamos myId explicitamente
+            await checkFollowStatus(myId, targetProfileId);
+        } catch (err) {
+            console.warn("Perfil não encontrado no banco de dados.");
+            setUser(null); 
+            setLoading(false);
+            return;
+        }
       }
 
-      const followersReq = api.get(`/users/${userData.id}/followers`);
-      const followingReq = api.get(`/users/${userData.id}/following`);
-      const reviewsReq = api.get(`/reviews/user/${userData.id}`);
-      
-      const [followersRes, followingRes, reviewsRes] = await Promise.all([
-          followersReq, 
-          followingReq,
-          reviewsReq
+      // 4. Carrega estatísticas em paralelo (com proteção contra falhas)
+      const [followersRes, followingRes, reviewsRes] = await Promise.allSettled([
+          api.get(`/users/${userData.id}/followers`),
+          api.get(`/users/${userData.id}/following`),
+          api.get(`/reviews/user/${userData.id}`)
       ]);
 
       setUser({
@@ -89,16 +113,17 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
           : `https://ui-avatars.com/api/?name=${userData.name}&background=random&color=fff`
       });
 
-      setUserReviews(reviewsRes.data);
+      const reviewsData = reviewsRes.status === 'fulfilled' ? reviewsRes.value.data : [];
+      setUserReviews(reviewsData);
 
       setStats({
-        films: reviewsRes.data.length || 0,
-        followers: followersRes.data.length || 0,
-        following: followingRes.data.length || 0
+        films: reviewsData.length || 0,
+        followers: followersRes.status === 'fulfilled' ? followersRes.value.data.length : 0,
+        following: followingRes.status === 'fulfilled' ? followingRes.value.data.length : 0
       });
 
     } catch (error) {
-      console.error("Erro ao carregar perfil:", error);
+      console.error("Erro fatal ao carregar:", error);
     } finally {
       setLoading(false);
     }
@@ -106,24 +131,28 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
 
   useEffect(() => {
     fetchUserData();
-  }, [token, viewingUserId]);
+  }, [token, viewingUserId]); 
+
 
   const handleFollowToggle = async () => {
     if (!user) return;
     try {
       api.defaults.headers.Authorization = `Bearer ${token}`;
       await api.post(`/users/${user.id}/follow`);
+      
       setIsFollowing(!isFollowing);
       setStats(prev => ({
         ...prev,
         followers: !isFollowing ? prev.followers + 1 : prev.followers - 1
       }));
+
     } catch (error) {
       console.error("Erro ao seguir:", error);
       alert("Erro ao realizar ação.");
     }
   };
 
+  // --- Funções do Modal ---
   const openEditModal = () => {
     setEditName(user.name);
     setEditBio(user.biography || '');
@@ -159,7 +188,7 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
         biography: editBio,
       });
 
-      alert("Perfil atualizado com sucesso!");
+      alert("Perfil atualizado!");
       setIsEditModalOpen(false);
       fetchUserData(); 
 
@@ -172,17 +201,37 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
   };
 
   if (loading) return <div className="profile-page-container"><h2>Carregando...</h2></div>;
-  if (!user) return <div className="profile-page-container"><h2>Usuário não encontrado.</h2></div>;
+
+  // CORREÇÃO 2: Tela de "Não Encontrado" mais bonita e com botão de voltar
+  if (!user) return (
+    <div className="profile-page-container" style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100vh'}}>
+        <h2 style={{fontSize:'2rem', marginBottom:'1rem'}}>Usuário não encontrado.</h2>
+        <p style={{color:'#888', marginBottom:'2rem'}}>Este perfil pode ter sido deletado ou o link está incorreto.</p>
+        <button 
+            onClick={() => navigate('/')}
+            style={{
+                padding:'10px 20px', 
+                backgroundColor:'#00e054', 
+                border:'none', 
+                borderRadius:'4px', 
+                color:'white', 
+                cursor:'pointer',
+                fontWeight:'bold'
+            }}
+        >
+            Voltar para o Início
+        </button>
+    </div>
+  );
 
   return (
     <div className="profile-page-container">
       <div className="content-wrapper">
           <header className="profile-header">
-          {/* Se clicar no logo, usa a função goToMain ou navigate */}
           <a href="#" className="profile-logo" onClick={(e) => { 
               e.preventDefault(); 
               if (goToMain) goToMain(); 
-              else navigate('/main'); // Fallback para navigate se goToMain não existir
+              else navigate('/'); 
           }}>
             <div className="profile-logo-pontos"><span></span><span></span><span></span></div>
           </a>
@@ -265,7 +314,6 @@ const ProfilePage = ({ goToMain, viewingUserId = null }) => {
             <div className="favorites-grid">
               {userReviews.length > 0 ? (
                   userReviews.slice(0, 4).map((review) => (
-                    // 3. Tornando o card clicável e adicionando estilo de ponteiro
                     <div 
                         key={review.id} 
                         className="film-poster" 

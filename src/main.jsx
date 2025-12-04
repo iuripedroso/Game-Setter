@@ -8,9 +8,6 @@ import LoginPage from "./loginPage";
 import ProfilePage from "./ProfilePage";
 import GamePage from "./GamePage"; 
 
-// --- Componente Wrapper para o Perfil ---
-// Esse componente serve para pegar o ID da URL (/profile/123) 
-// e passar como prop (viewingUserId) para o ProfilePage
 const ProfileWrapper = () => {
     const { id } = useParams(); // Pega o ID da URL
     const navigate = useNavigate();
@@ -75,7 +72,6 @@ function App() {
 
 export default App;
 
-// Renderização (se for create-react-app padrão)
 const rootElement = document.getElementById("root");
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
