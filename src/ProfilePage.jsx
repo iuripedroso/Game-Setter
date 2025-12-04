@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
-import './ProfilePage.module.css';
+import './ProfilePage.css';
 
 const ProfilePage = ({ goToMain }) => {   // ⬅️ Adicionado aqui
 
